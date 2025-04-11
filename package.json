@@ -30,6 +30,7 @@
     "electron-router-dom": "^2.1.0",
     "electron-updater": "^6.1.7",
     "framer-motion": "^12.4.7",
+    "lucide-react": "^0.487.0",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.2",

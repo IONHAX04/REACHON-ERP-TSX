@@ -43,7 +43,7 @@ const MainRoutes: React.FC = () => {
     <div>
       <ConditionalHeader>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Login />} />
           {/* <Route path="/testingPDF" element={<TestingPDF />} /> */}
           {/* <Route
             path="/"

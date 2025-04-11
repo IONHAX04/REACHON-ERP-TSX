@@ -1,0 +1,89 @@
+* {
+  scrollbar-width: none;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+p {
+  margin: 5px;
+}
+
+.primaryNav {
+  display: flex;
+  justify-content: space-between;
+  padding: 0px 10px;
+  background-color: white;
+  position: sticky !important;
+  left: 0;
+  top: 0;
+  align-items: center;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.reportDatatable .p-datatable-wrapper {
+  scrollbar-width: thin;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 4px 1rem;
+}
+
+.uploadDataTable .p-datatable-tbody > tr > td,
+.employeeDataTable .p-datatable-tbody > tr > td {
+  padding: 1rem 1rem;
+}
+
+.reportDatatable .p-datatable-tbody > tr > td {
+  padding: 10px 1rem;
+}
+
+.primaryNav p {
+  font-weight: bold;
+  font-size: 17px;
+  padding: 1rem 10px;
+}
+
+.p-stepper .p-stepper-header:has(~ .p-highlight) .p-stepper-separator {
+  background-color: #00052e;
+}
+
+.p-stepper .p-stepper-header.p-highlight .p-stepper-number {
+  background-color: #00052e;
+}
+
+.p-datepicker-trigger.p-button.p-component.p-button-icon-only {
+  background-color: #00052e;
+}
+
+.p-fieldset .p-fieldset-content {
+  padding: 0.25rem !important;
+}
+
+.p-error {
+  background-color: #ffebeb !important;
+  color: #d32f2f !important;
+}
+
+.partnersVendorId .p-datatable-wrapper {
+  scrollbar-width: thin !important;
+}
+
+.transactionDetailsTable .p-datatable-wrapper {
+  scrollbar-width: thin;
+}
+
+.loginScreenUIBg {
+  background: white !important;
+}
+
+.border-circle.bg-primary.inline-flex.justify-content-center.align-items-center.h-6rem.w-6rem.-mt-8 {
+  background: #0d89ec !important;
+  color: white !important;
+}

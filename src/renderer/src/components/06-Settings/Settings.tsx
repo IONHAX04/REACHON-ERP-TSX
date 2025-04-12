@@ -68,8 +68,8 @@ const Settings: React.FC = () => {
         return <PincodeSidebar />
       // case "Money Transfer":
       //   return <MoneyTransferSidebar />;
-      // default:
-      //   return <p>Select an option to view details.</p>;
+      default:
+        return <p>Select an option to view details.</p>
     }
   }
   return (

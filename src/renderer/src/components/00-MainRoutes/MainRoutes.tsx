@@ -5,19 +5,19 @@ import { useEffect, useState } from 'react'
 import { Dialog } from 'primereact/dialog'
 import { Button } from 'primereact/button'
 
-// import Header from '../01-Header/Header'
-// import Dashboard from '../02-Dashboard/Dashboard'
-// import Key from '../03-Key/Key'
-// import Employees from '../04-Employees/Employees'
-// import Tracking from '../05-Tracking/Tracking'
-// import Settings from '../06-Settings/Settings'
-// import Profile from '../07-Profile/Profile'
+import Header from '../01-Header/Header'
+import Dashboard from '../02-Dashboard/Dashboard'
+import Key from '../03-Key/Key'
+import Employees from '../04-Employees/Employees'
+import Tracking from '../05-Tracking/Tracking'
+import Settings from '../06-Settings/Settings'
+import Profile from '../07-Profile/Profile'
 import Login from '../08-Login/Login'
-// import Booking from '../09-Booking/Booking'
-// import Report from '../10-Report/Report'
-// import TestingPDF from '../11-TestingPDF/TestingPDF'
-// import ReportPDF from '../12-ReportPDF/ReportPDF'
-// import Finance from '../13-Finance/Finance'
+import Booking from '../09-Booking/Booking'
+import Report from '../10-Report/Report'
+import TestingPDF from '../11-TestingPDF/TestingPDF'
+import ReportPDF from '../12-ReportPDF/ReportPDF'
+import Finance from '../13-Finance/Finance'
 
 function PrivateRoute({ children }) {
   const userDetails = localStorage.getItem('userDetails')
@@ -43,9 +43,9 @@ const MainRoutes: React.FC = () => {
     <div>
       <ConditionalHeader>
         <Routes>
-          <Route path="/" element={<Login />} />
-          {/* <Route path="/testingPDF" element={<TestingPDF />} /> */}
-          {/* <Route
+          <Route path="/login" element={<Login />} />
+          <Route path="/testingPDF" element={<TestingPDF />} />
+          <Route
             path="/"
             element={
               <PrivateRoute>
@@ -125,7 +125,7 @@ const MainRoutes: React.FC = () => {
                 <ReportPDF />
               </PrivateRoute>
             }
-          /> */}
+          />
         </Routes>{' '}
       </ConditionalHeader>
 
@@ -147,14 +147,8 @@ function ConditionalHeader({ children }) {
   const location = useLocation()
   const excludedRoutes = ['/login', '/testingPDF']
   const isExcluded = excludedRoutes.includes(location.pathname)
-  console.log('isExcluded', isExcluded)
 
-  return (
-    <>
-      {/* {!isExcluded && <Header />} */}
-      {children}
-    </>
-  )
+  return isExcluded ? <>{children}</> : <Header>{children}</Header>
 }
 
 ConditionalHeader.propTypes = {

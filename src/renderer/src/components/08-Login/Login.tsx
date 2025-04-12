@@ -8,7 +8,7 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
-import logoImg from '../../assets/imageLogo.png'
+import logoImg from '../../assets/Logo/logoImg.png'
 import decrypt from '@renderer/helper'
 
 const Login: React.FC = () => {
@@ -80,7 +80,7 @@ const Login: React.FC = () => {
     }
   }
   return (
-    <div className="h-screen">
+    <div className="h-screen loginScreenBg">
       <Toast ref={toast} />
       <ConfirmDialog
         group="headless"
@@ -124,24 +124,30 @@ const Login: React.FC = () => {
           <div
             style={{
               borderRadius: '56px',
-              padding: '0.3rem',
-              background: 'linear-gradient(180deg, #00052e 10%, rgba(0, 5, 46, 0) 30%)'
+              padding: '0.3rem'
             }}
           >
             <div
               className="w-full surface-card py-8 px-5 sm:px-8"
               style={{ borderRadius: '53px' }}
               ref={(el) => {
-                if (el) el.style.setProperty('background-color', 'white', 'important')
+                if (el) {
+                  el.style.setProperty('background-color', 'rgba(255, 255, 255, 0.90)', 'important') // translucent
+                  el.style.setProperty('backdrop-filter', 'blur(3px)', 'important') // blur effect
+                  el.style.setProperty('-webkit-backdrop-filter', 'blur(10px)', 'important') // Safari support
+                  el.style.setProperty('border-radius', '12px', 'important') // rounded corners
+                  el.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.3)', 'important') // subtle border
+                  el.style.setProperty('box-shadow', '0 4px 30px rgba(0, 0, 0, 0.1)', 'important') // soft shadow
+                }
               }}
             >
               <div className="text-center mb-5">
-                <div className="text-900 text-3xl font-medium mb-3">Welcome, Admin!</div>
+                <div className="text-900 text-3xl font-medium mb-3 loginFonts">Welcome, Admin!</div>
                 <img src={logoImg} alt="" style={{ width: '150px' }} />
               </div>
               <div>
                 <label htmlFor="email1" className="block text-900 text-xl font-medium mb-2">
-                  Username
+                  {/* Username */}
                 </label>
                 <InputText
                   id="email1"
@@ -154,7 +160,7 @@ const Login: React.FC = () => {
                 />
 
                 <label htmlFor="password1" className="block text-900 font-medium text-xl mb-2">
-                  Password
+                  {/* Password */}
                 </label>
                 <Password
                   inputId="password1"

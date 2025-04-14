@@ -7,6 +7,7 @@ import { InputSwitch } from 'primereact/inputswitch'
 import { Divider } from 'primereact/divider'
 import axios from 'axios'
 import decrypt from '../../helper'
+import { FileJson, FolderOpen, LocateFixed, Phone, UsersRound } from 'lucide-react'
 
 interface SetCustomer {
   id: number
@@ -189,7 +190,7 @@ const VendorSidebar: React.FC = () => {
             <div className="flex gap-2">
               <div className="p-inputgroup flex-1">
                 <span className="p-inputgroup-addon">
-                  <i className="pi "></i>
+                  <UsersRound size={20} />{' '}
                 </span>
                 <InputText
                   placeholder="Customers"
@@ -199,7 +200,7 @@ const VendorSidebar: React.FC = () => {
               </div>
               <div className="p-inputgroup flex-1">
                 <span className="p-inputgroup-addon">
-                  <i className="pi "></i>
+                  <FileJson size={20} />{' '}
                 </span>
                 <InputText
                   placeholder="Code"
@@ -211,7 +212,7 @@ const VendorSidebar: React.FC = () => {
             <div className="flex gap-2">
               <div className="p-inputgroup flex-1">
                 <span className="p-inputgroup-addon">
-                  <i className="pi "></i>
+                  <Phone size={20} />
                 </span>
                 <InputText
                   placeholder="Phone"
@@ -226,7 +227,7 @@ const VendorSidebar: React.FC = () => {
             </div>
             <div className="p-inputgroup">
               <span className="p-inputgroup-addon">
-                <i className="pi "></i>
+                <LocateFixed size={20} />
               </span>
               <InputText
                 placeholder="Address"
@@ -236,7 +237,7 @@ const VendorSidebar: React.FC = () => {
             </div>
             <div className="p-inputgroup">
               <span className="p-inputgroup-addon">
-                <i className="pi "></i>
+                <FolderOpen size={20} />{' '}
               </span>
               <InputText
                 placeholder="Notes"

@@ -89,8 +89,8 @@ p {
 }
 
 .loginScreenBg {
-  background: url('../src/assets/Login/login4.png');
-  width: 100vw;
+  background: url('../src/assets/Login/login5.jpg');
+  width: 95vw;
   height: 100vh;
   background-size: cover;
 }

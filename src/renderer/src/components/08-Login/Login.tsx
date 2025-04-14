@@ -8,7 +8,9 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
-import logoImg from '../../assets/Logo/logoImg.png'
+// import logoImg from '../../assets/Logo/logoImg.png'
+import logoImg from '../../assets/imageLogo.png'
+
 import decrypt from '@renderer/helper'
 
 const Login: React.FC = () => {
@@ -18,7 +20,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate()
 
   const containerClassName = classNames(
-    'surface-ground flex align-items-center justify-content-center overflow-hidden'
+    'surface-ground flex align-items-center justify-content-end overflow-hidden'
   )
 
   const handleSignIn = async () => {
@@ -130,16 +132,16 @@ const Login: React.FC = () => {
             <div
               className="w-full surface-card py-8 px-5 sm:px-8"
               style={{ borderRadius: '53px' }}
-              ref={(el) => {
-                if (el) {
-                  el.style.setProperty('background-color', 'rgba(255, 255, 255, 0.90)', 'important') // translucent
-                  el.style.setProperty('backdrop-filter', 'blur(3px)', 'important') // blur effect
-                  el.style.setProperty('-webkit-backdrop-filter', 'blur(10px)', 'important') // Safari support
-                  el.style.setProperty('border-radius', '12px', 'important') // rounded corners
-                  el.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.3)', 'important') // subtle border
-                  el.style.setProperty('box-shadow', '0 4px 30px rgba(0, 0, 0, 0.1)', 'important') // soft shadow
-                }
-              }}
+              // ref={(el) => {
+              //   if (el) {
+              //     el.style.setProperty('background-color', 'rgba(255, 255, 255, 0.90)', 'important') // translucent
+              //     el.style.setProperty('backdrop-filter', 'blur(3px)', 'important') // blur effect
+              //     el.style.setProperty('-webkit-backdrop-filter', 'blur(10px)', 'important') // Safari support
+              //     el.style.setProperty('border-radius', '12px', 'important') // rounded corners
+              //     el.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.3)', 'important') // subtle border
+              //     el.style.setProperty('box-shadow', '0 4px 30px rgba(0, 0, 0, 0.1)', 'important') // soft shadow
+              //   }
+              // }}
             >
               <div className="text-center mb-5">
                 <div className="text-900 text-3xl font-medium mb-3 loginFonts">Welcome, Admin!</div>
@@ -176,7 +178,7 @@ const Login: React.FC = () => {
                 <Button
                   label="Sign In"
                   className="w-full p-3 text-xl"
-                  style={{ background: '#00052e' }}
+                  style={{ background: '#0478df' }}
                   onClick={handleSignIn}
                 ></Button>
               </div>

@@ -13,6 +13,24 @@ import decrypt from '../../helper'
 import { Toast } from 'primereact/toast'
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
+import {
+  ArrowUpFromLine,
+  BadgeIndianRupee,
+  Boxes,
+  FileStack,
+  FileText,
+  Landmark,
+  LocateFixed,
+  Mail,
+  MapPin,
+  Maximize2,
+  Minimize2,
+  Phone,
+  Ruler,
+  ScrollText,
+  UserRoundCheck,
+  Weight
+} from 'lucide-react'
 
 interface CustomerDetailsProps {
   createdAt: string
@@ -381,7 +399,7 @@ const Booking: React.FC = () => {
                     <div className="card flex flex-column md:flex-row gap-3">
                       <div className="p-inputgroup flex-1">
                         <span className="p-inputgroup-addon">
-                          <i className="pi "></i>
+                          <UserRoundCheck size={20} />{' '}
                         </span>
                         <InputText
                           placeholder="Consignor's Name"
@@ -390,7 +408,9 @@ const Booking: React.FC = () => {
                         />
                       </div>
                       <div className="p-inputgroup flex-1">
-                        <span className="p-inputgroup-addon"></span>
+                        <span className="p-inputgroup-addon">
+                          <LocateFixed size={20} />{' '}
+                        </span>
                         <InputText
                           placeholder="Consignor's Address"
                           value={consignerAddress}
@@ -400,7 +420,9 @@ const Booking: React.FC = () => {
                     </div>
                     <div className="flex gap-3">
                       <div className="p-inputgroup flex-1">
-                        <span className="p-inputgroup-addon"></span>
+                        <span className="p-inputgroup-addon">
+                          <MapPin size={20} />
+                        </span>
                         <InputText
                           placeholder="Consignor's Pincode"
                           value={consignerPincode}
@@ -408,7 +430,9 @@ const Booking: React.FC = () => {
                         />
                       </div>
                       <div className="p-inputgroup flex-1">
-                        <span className="p-inputgroup-addon"></span>
+                        <span className="p-inputgroup-addon">
+                          <Landmark size={20} />
+                        </span>
                         <InputText
                           placeholder="GST Number"
                           value={consigerGstNumber}
@@ -419,7 +443,7 @@ const Booking: React.FC = () => {
                     <div className="card flex flex-column md:flex-row gap-3">
                       <div className="p-inputgroup flex-1">
                         <span className="p-inputgroup-addon">
-                          <i className="pi "></i>
+                          <Phone size={20} />{' '}
                         </span>
                         <InputText
                           placeholder="Phone"
@@ -428,7 +452,9 @@ const Booking: React.FC = () => {
                         />
                       </div>
                       <div className="p-inputgroup flex-1">
-                        <span className="p-inputgroup-addon"></span>
+                        <span className="p-inputgroup-addon">
+                          <Mail size={20} />
+                        </span>
                         <InputText
                           placeholder="Email"
                           value={consigerEmail}
@@ -444,7 +470,9 @@ const Booking: React.FC = () => {
                 <div className="flex flex-column align-items-start gap-3">
                   <p>Consignee</p>
                   <div className="p-inputgroup flex-1">
-                    <span className="p-inputgroup-addon"></span>
+                    <span className="p-inputgroup-addon">
+                      <ScrollText size={20} />
+                    </span>
                     <InputText
                       placeholder="Customer Ref No."
                       value={consigeeRefNumber}
@@ -454,7 +482,7 @@ const Booking: React.FC = () => {
                   <div className="card flex flex-column md:flex-row gap-3">
                     <div className="p-inputgroup flex-1">
                       <span className="p-inputgroup-addon">
-                        <i className="pi "></i>
+                        <UserRoundCheck size={20} />{' '}
                       </span>
                       <InputText
                         placeholder="Consignee's Name"
@@ -463,7 +491,9 @@ const Booking: React.FC = () => {
                       />
                     </div>
                     <div className="p-inputgroup flex-1">
-                      <span className="p-inputgroup-addon"></span>
+                      <span className="p-inputgroup-addon">
+                        <LocateFixed size={20} />{' '}
+                      </span>
                       <InputText
                         placeholder="Consignee's Address"
                         value={consigeeAddress}
@@ -473,7 +503,9 @@ const Booking: React.FC = () => {
                   </div>
                   <div className="flex gap-3">
                     <div className="p-inputgroup flex-1">
-                      <span className="p-inputgroup-addon"></span>
+                      <span className="p-inputgroup-addon">
+                        <MapPin size={20} />
+                      </span>
                       <InputText
                         placeholder="Consignee's Pincode"
                         value={consigneePincode}
@@ -481,7 +513,9 @@ const Booking: React.FC = () => {
                       />
                     </div>
                     <div className="p-inputgroup flex-1">
-                      <span className="p-inputgroup-addon"></span>
+                      <span className="p-inputgroup-addon">
+                        <Landmark size={20} />
+                      </span>
                       <InputText
                         placeholder="GST Number"
                         value={consigneeGst}
@@ -492,7 +526,7 @@ const Booking: React.FC = () => {
                   <div className="card flex flex-column md:flex-row gap-3">
                     <div className="p-inputgroup flex-1">
                       <span className="p-inputgroup-addon">
-                        <i className="pi "></i>
+                        <Phone size={20} />{' '}
                       </span>
                       <InputText
                         placeholder="Phone"
@@ -501,7 +535,9 @@ const Booking: React.FC = () => {
                       />
                     </div>
                     <div className="p-inputgroup flex-1">
-                      <span className="p-inputgroup-addon"></span>
+                      <span className="p-inputgroup-addon">
+                        <Mail size={20} />
+                      </span>
                       <InputText
                         placeholder="Email"
                         value={consigneeEmail}
@@ -533,7 +569,7 @@ const Booking: React.FC = () => {
                 </div>
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
-                    <i className="pi "></i>
+                    <FileText size={20} />{' '}
                   </span>
                   <InputText
                     placeholder="Content Specification"
@@ -543,7 +579,7 @@ const Booking: React.FC = () => {
                 </div>
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
-                    <i className="pi "></i>
+                    <FileStack size={20} />
                   </span>
                   <InputText
                     placeholder="Paper Enclosed"
@@ -559,7 +595,7 @@ const Booking: React.FC = () => {
               <div className="card flex flex-column md:flex-row gap-3">
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
-                    <i className="pi "></i>
+                    <BadgeIndianRupee size={20} />
                   </span>
                   <InputText
                     placeholder="Declared Value"
@@ -569,7 +605,7 @@ const Booking: React.FC = () => {
                 </div>
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
-                    <i className="pi "></i>
+                    <Boxes size={20} />
                   </span>
                   <InputText
                     placeholder="No. Of Pieces"
@@ -579,7 +615,7 @@ const Booking: React.FC = () => {
                 </div>
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
-                    <i className="pi "></i>
+                    <Minimize2 size={20} />
                   </span>
                   <InputText
                     placeholder="Actual Weight"
@@ -598,7 +634,7 @@ const Booking: React.FC = () => {
               <div className="card flex mt-3 flex-column md:flex-row gap-3">
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
-                    <i className="pi "></i>
+                    <ArrowUpFromLine size={20} />
                   </span>
                   <InputText
                     placeholder="Height"
@@ -609,7 +645,7 @@ const Booking: React.FC = () => {
                 </div>
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
-                    <i className="pi "></i>
+                    <Maximize2 size={20} />
                   </span>
                   <InputText
                     placeholder="Weight"
@@ -620,7 +656,7 @@ const Booking: React.FC = () => {
                 </div>
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
-                    <i className="pi "></i>
+                    <Ruler size={20} />
                   </span>
                   <InputText
                     placeholder="Breadth"
@@ -631,7 +667,7 @@ const Booking: React.FC = () => {
                 </div>
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
-                    <i className="pi "></i>
+                    <Weight size={20} />{' '}
                   </span>
                   <InputText
                     placeholder="Charged Weight"

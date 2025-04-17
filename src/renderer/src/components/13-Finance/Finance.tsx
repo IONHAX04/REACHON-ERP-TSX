@@ -18,6 +18,18 @@ interface Product {
   balance: number
 }
 
+interface UserDetails {
+  refUserId: number
+  refCustId: string
+  refUserFName: string
+  refUserLName: string
+  refCustMobileNum: string
+  refCustpassword: string
+  refCusthashedpassword: string
+  refUsername: string
+  userTypeName: string
+}
+
 interface FinanceDetailsProps {
   id: string
   refCustomerName: string
@@ -47,6 +59,17 @@ const Finance: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [visible, setVisible] = useState(false)
 
+  const [user, setUser] = useState<UserDetails>()
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('userDetails')
+    console.log('storedUser', storedUser)
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+  }, [])
+
   const getFinanceDetails = () => {
     axios
       .get(import.meta.env.VITE_API_URL + '/route/listFinance', {
@@ -62,8 +85,63 @@ const Finance: React.FC = () => {
       })
   }
 
+  // useEffect(() => {
+  //   getFinanceDetails()
+  // }, [])
   useEffect(() => {
-    getFinanceDetails()
+    const storedData = localStorage.getItem('balanceStaticData')
+    if (storedData) {
+      setProducts(JSON.parse(storedData))
+    } else {
+      const staticData = [
+        {
+          id: '1',
+          code: '1',
+          name: 'Lakshmi Super Market',
+          invoice: 'INV1000',
+          outstanding: 12000,
+          payAmount: '',
+          balance: 12000 // Initial balance equals outstanding
+        },
+        {
+          id: '2',
+          code: '2',
+          name: 'SKM Shop',
+          invoice: 'INV1001',
+          outstanding: 8500,
+          payAmount: '',
+          balance: 8500
+        },
+        {
+          id: '3',
+          code: '3',
+          name: 'SCM Shop',
+          invoice: 'INV1002',
+          outstanding: 13000,
+          payAmount: '',
+          balance: 13000
+        },
+        {
+          id: '4',
+          code: '4',
+          name: 'Valli Exports',
+          invoice: 'INV1003',
+          outstanding: 9500,
+          payAmount: '',
+          balance: 9500
+        },
+        {
+          id: '5',
+          code: '5',
+          name: 'Ram Textiles',
+          invoice: 'INV1004',
+          outstanding: 11000,
+          payAmount: '',
+          balance: 11000
+        }
+      ]
+      setProducts(staticData)
+    }
   }, [])
 
   // Handle Pay Amount Change
@@ -113,13 +191,21 @@ const Finance: React.FC = () => {
   const confirmPayment = () => {
     if (!selectedProduct) return
 
-    const updatedProducts = products.map((product) =>
-      product.id === selectedProduct.id ? { ...product, outstanding: product.balance } : product
-    )
+    const updatedProducts = products.map((product) => {
+      if (product.id === selectedProduct.id) {
+        return {
+          ...product,
+          outstanding: Number(product.balance), // update outstanding with the new balance
+          payAmount: '' // clear the payAmount field
+        }
+      }
+      return product
+    })
 
     setProducts(updatedProducts)
     localStorage.setItem('balanceStaticData', JSON.stringify(updatedProducts))
     setVisible(false)
+    setSelectedProduct(null)
   }
 
   return (
@@ -127,7 +213,7 @@ const Finance: React.FC = () => {
       <div>
         <div className="primaryNav">
           <p>Finance</p>
-          <p>Logged in as: Admin</p>
+          <p className="">Logged in as: {user?.userTypeName}</p>
         </div>
         <div className="financeContents m-3">
           <DataTable value={products} dataKey="id" showGridlines stripedRows>
@@ -137,8 +223,8 @@ const Finance: React.FC = () => {
               body={(_, { rowIndex }) => rowIndex + 1}
               style={{ minWidth: '3rem' }}
             />
-            <Column field="refCustomerName" header="Name" frozen style={{ minWidth: '14rem' }} />
-            <Column field="refBalanceAmount" header="Outstanding" style={{ minWidth: '8rem' }} />
+            <Column field="name" header="Name" frozen style={{ minWidth: '14rem' }} />
+            <Column field="outstanding" header="Outstanding" style={{ minWidth: '8rem' }} />
             <Column
               field="payAmount"
               header="Pay Amount"
@@ -151,7 +237,7 @@ const Finance: React.FC = () => {
               )}
               style={{ minWidth: '8rem' }}
             />
-            <Column field="refBalanceAmount" header="Balance Amount" style={{ minWidth: '8rem' }} />
+            <Column field="balance" header="Balance Amount" style={{ minWidth: '8rem' }} />
             <Column
               header="Action"
               body={(rowData) => (

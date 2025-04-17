@@ -1,18 +1,41 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { RadioButton } from 'primereact/radiobutton'
 import { InputText } from 'primereact/inputtext'
 import { Truck } from 'lucide-react'
 
+interface UserDetails {
+  refUserId: number
+  refCustId: string
+  refUserFName: string
+  refUserLName: string
+  refCustMobileNum: string
+  refCustpassword: string
+  refCusthashedpassword: string
+  refUsername: string
+  userTypeName: string
+}
+
 const Tracking: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState('')
+
+  const [user, setUser] = useState<UserDetails>()
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('userDetails')
+    console.log('storedUser', storedUser)
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+  }, [])
 
   return (
     <div>
       <div>
         <div className="primaryNav">
           <p>Tracking</p>
-          <p className="">Logged in as: Admin</p>
+          <p className="">Logged in as: {user?.userTypeName}</p>
         </div>
         <div className="trackingContents m-3">
           <div className="flex gap-3">

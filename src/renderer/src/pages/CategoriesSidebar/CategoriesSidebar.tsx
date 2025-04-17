@@ -165,16 +165,16 @@ const CategoriesSidebar: React.FC = () => {
     )
   }
 
-  const quantityTemplate = (rowData) => (
-    <Button
-      rounded
-      outlined
-      text
-      severity="info"
-      icon="pi pi-pencil"
-      onClick={() => console.log('Edit quantity for', rowData.id)}
-    />
-  )
+  // const quantityTemplate = (rowData) => (
+  //   <Button
+  //     rounded
+  //     outlined
+  //     text
+  //     severity="info"
+  //     icon="pi pi-pencil"
+  //     onClick={() => console.log('Edit quantity for', rowData.id)}
+  //   />
+  // )
 
   return (
     <div>
@@ -263,7 +263,7 @@ const CategoriesSidebar: React.FC = () => {
           style={{ minWidth: '200px' }}
         ></Column>
         <Column field="refSubCategory" header="Sub Category" style={{ minWidth: '200px' }}></Column>
-        <Column field="edit" header="Actions" style={{ width: '4rem' }} body={quantityTemplate} />
+        {/* <Column field="edit" header="Actions" style={{ width: '4rem' }} body={quantityTemplate} /> */}
       </DataTable>
     </div>
   )

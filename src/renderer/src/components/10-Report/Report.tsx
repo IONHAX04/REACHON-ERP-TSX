@@ -170,21 +170,35 @@ const Report: React.FC = () => {
               style={{ width: '1rem' }}
               body={(_rowData, { rowIndex }) => rowIndex + 1}
             ></Column>
-            <Column header="" expander={allowExpansion} style={{ width: '2rem' }} />
+            {/* <Column header="" expander={allowExpansion} style={{ width: '2rem' }} /> */}
             <Column
               field="bookedDate"
               header="Date"
               style={{ width: '5rem' }}
               body={(rowData) => new Date(rowData.bookedDate).toLocaleDateString('en-GB')}
             />
-            <Column field="vendorLeaf" header="POD Number" style={{ minWidth: '9rem' }} />
-            <Column field="refCustId" header="Leaf" style={{ minWidth: '12rem' }} />
+            <Column field="NoOfPieces" header="Consignor's Name" style={{ minWidth: '12rem' }} />
+
+            <Column
+              header="Partner Name"
+              style={{ minWidth: '12rem' }}
+              body={(rowData) => {
+                try {
+                  const parsed = JSON.parse(rowData.partnersName)
+                  return parsed.partnersName || 'N/A'
+                } catch (error) {
+                  return 'Invalid Data'
+                }
+              }}
+            />
+            <Column field="NoOfPieces" header="No Of Pieces" style={{ minWidth: '9rem' }} />
+            <Column field="refCustId" header="Leaf" style={{ minWidth: '16rem' }} />
             <Column field="destination" header="Destination" style={{ width: '5rem' }} />
-            <Column field="weight" header="Weight" style={{ width: '6rem' }} />
-            {/* <Column field="freight" header="Freight" style={{ width: "7rem" }} />
-          <Column field="pickUP" header="Pick Up" style={{ width: "7rem" }} /> */}
+            <Column field="actualWeight" header="Weight" style={{ width: '6rem' }} />
+            {/* <Column field="freight" header="Freight" style={{ width: "7rem" }} />*/}
+            <Column field="pickUP" header="Pick Up" style={{ minWidth: '6rem' }} />
             <Column field="netAmount" header="Amount" style={{ width: '6rem' }} />
-            <Column header="Action" body={payButtonTemplate} style={{ minWidth: '8rem' }} />
+            {/* <Column header="Action" body={payButtonTemplate} style={{ minWidth: '8rem' }} /> */}
           </DataTable>
         </div>
       </div>

@@ -11,7 +11,7 @@ import customers from '../../assets/settings/customer.svg'
 import loginCred from '../../assets/settings/loginCred.svg'
 // import pincode from '../../assets/settings/pincode.svg'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import PartnersSidebar from '../../pages/PartnersSidebar/PartnersSidebar'
 import VendorSidebar from '../../pages/VendorSidebar/VendorSidebar'
 import CategoriesSidebar from '../../pages/CategoriesSidebar/CategoriesSidebar'
@@ -22,7 +22,7 @@ const cardsData = [
   { id: 2, title: 'Customers', icon: customers },
   { id: 3, title: 'Price', icon: price },
   { id: 4, title: 'Categories', icon: categories },
-  { id: 5, title: 'Login Credentials', icon: loginCred }
+  // { id: 5, title: 'Login Credentials', icon: loginCred }
   // { id: 5, title: 'Pincode', icon: pincode }
   // { id: 6, title: "Mapping", icon: category },
   // { id: 7, title: "Employee", icon: restroDoc },
@@ -30,9 +30,32 @@ const cardsData = [
   // { id: 9, title: "Restrictions", icon: money },
 ]
 
+interface UserDetails {
+  refUserId: number
+  refCustId: string
+  refUserFName: string
+  refUserLName: string
+  refCustMobileNum: string
+  refCustpassword: string
+  refCusthashedpassword: string
+  refUsername: string
+  userTypeName: string
+}
+
 const Settings: React.FC = () => {
   const [visibleSidebar, setVisibleSidebar] = useState(false)
   const [selectedCard, setSelectedCard] = useState<string | null>(null)
+
+  const [user, setUser] = useState<UserDetails>()
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('userDetails')
+    console.log('storedUser', storedUser)
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+  }, [])
 
   const renderCard = (card) => (
     <div
@@ -76,7 +99,7 @@ const Settings: React.FC = () => {
     <div>
       <div className="primaryNav">
         <p>Settings</p>
-        <p className="">Logged in as: Admin</p>
+        <p className="">Logged in as: {user?.userTypeName}</p>
       </div>
       <div className="flex w-full items-center mt-4">
         <DataView

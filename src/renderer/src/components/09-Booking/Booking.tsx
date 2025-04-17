@@ -11,8 +11,8 @@ import { Button } from 'primereact/button'
 import axios from 'axios'
 import decrypt from '../../helper'
 import { Toast } from 'primereact/toast'
-import { DataTable } from 'primereact/datatable'
-import { Column } from 'primereact/column'
+// import { DataTable } from 'primereact/datatable'
+// import { Column } from 'primereact/column'
 import {
   ArrowUpFromLine,
   BadgeIndianRupee,
@@ -101,8 +101,49 @@ interface ParcelBookingProps {
   weight: string
 }
 
+interface UserDetails {
+  refUserId: number
+  refCustId: string
+  refUserFName: string
+  refUserLName: string
+  refCustMobileNum: string
+  refCustpassword: string
+  refCusthashedpassword: string
+  refUsername: string
+  userTypeName: string
+}
+
+interface SelectedCustomerDetailsProps {
+  createdAt: string
+  createdBy: string
+  deletedAt: string
+  deletedBy: string
+  refAddress: string
+  refCode: string
+  refCustId: string
+  refCustomerId: any
+  refCustomerName: string
+  refCustomerType: boolean
+  refDummy4: string
+  refDummy5: string
+  refNotes: string
+  refPhone: string
+  updatedAt: string
+  updatedBy: string
+}
+
 const Booking: React.FC = () => {
   const toast = useRef<Toast>(null)
+  const [user, setUser] = useState<UserDetails>()
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('userDetails')
+    console.log('storedUser', storedUser)
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+  }, [])
 
   const [vendors, setVendors] = useState<any[]>([])
   const [partners, setPartners] = useState(null)
@@ -110,7 +151,8 @@ const Booking: React.FC = () => {
   const [parcelType, setParcelType] = useState(null)
 
   const [customerDetails, setCustomersDetails] = useState<CustomerDetailsProps[] | []>([])
-  const [selectedCustomerDetails, setSelectedCustomerDetails] = useState(null)
+  const [selectedCustomerDetails, setSelectedCustomerDetails] =
+    useState<SelectedCustomerDetailsProps | null>(null)
 
   const [consignersName, setConsigersName] = useState('')
   const [consignerAddress, setConsigerAddress] = useState('')
@@ -146,7 +188,7 @@ const Booking: React.FC = () => {
   const [netAmoutn, setNetAmount] = useState('')
   const [pickupCharge, setPickupCharge] = useState('')
 
-  const [parcelBookingData, setParcelBookingData] = useState<ParcelBookingProps[]>([])
+  const [_parcelBookingData, setParcelBookingData] = useState<ParcelBookingProps[]>([])
 
   const getPartners = () => {
     axios
@@ -191,6 +233,48 @@ const Booking: React.FC = () => {
   }
 
   const handlePayload = () => {
+    const requiredFields = [
+      { label: 'Partner Name', value: partners },
+      { label: 'Parcel Type', value: parcelType },
+      { label: 'Destination', value: value },
+      { label: 'Consignor Name', value: consignersName },
+      { label: 'Consignor Address', value: consignerAddress },
+      { label: 'Consignor GST Number', value: consigerGstNumber },
+      { label: 'Consignor Phone', value: consigerPhone },
+      { label: 'Consignor Email', value: consigerEmail },
+      { label: 'Customer Ref No', value: consigeeRefNumber },
+      { label: 'Consignee Name', value: consigneName },
+      { label: 'Consignee Address', value: consigeeAddress },
+      { label: 'Consignee GST Number', value: consigneeGst },
+      { label: 'Consignee Phone', value: consigneePhone },
+      { label: 'Consignee Email', value: consigneeEmail },
+      { label: 'Content Specification', value: contentSpecifications },
+      { label: 'Paper Enclosed', value: paperEnclosed },
+      { label: 'Declared Value', value: declaredValue },
+      { label: 'No. of Pieces', value: numberOfPieces },
+      { label: 'Actual Weight', value: actualWeight },
+      // { label: 'Dimension', value: checked },
+      { label: 'Net Amount', value: netAmoutn },
+      { label: 'Pickup Charge', value: pickupCharge },
+      { label: 'Count', value: count },
+      { label: 'Consignor Pincode', value: consignerPincode },
+      { label: 'Consignee Pincode', value: consigneePincode }
+    ]
+
+    const missingField = requiredFields.find(
+      (field) => !field.value || field.value.toString().trim() === ''
+    )
+
+    if (missingField) {
+      toast.current?.show({
+        severity: 'warn',
+        summary: 'Validation Error',
+        detail: `Please enter ${missingField.label}`
+      })
+      return
+    }
+
+    console.log('selectedCustomerDetails', selectedCustomerDetails)
     axios
       .post(
         import.meta.env.VITE_API_URL + '/route/bookingTest',
@@ -222,7 +306,7 @@ const Booking: React.FC = () => {
           chargedWeight: chargedWeight || '-',
           paymentId: 1,
           customerType: true,
-          refCustomerId: 1,
+          refCustomerId: selectedCustomerDetails?.refCustomerId,
           netAmount: netAmoutn,
           pickUP: pickupCharge,
           count: count,
@@ -236,18 +320,19 @@ const Booking: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data', data)
+        localStorage.setItem('JWTtoken', data.token)
         if (data.success) {
           toast.current?.show({
             severity: 'success',
             summary: 'Order Placed',
             detail: `Order Placed Successfully`
           })
-          window.open('/testingPDF', '_blank')
+          // window.open('/testingPDF', '_blank')
         } else {
           toast.current?.show({
             severity: 'warn',
             summary: 'Error Occured',
-            detail: `${data.message}`
+            detail: `${data.error}`
           })
         }
         getPartners()
@@ -310,7 +395,7 @@ const Booking: React.FC = () => {
 
       <div className="primaryNav">
         <p>Booking</p>
-        <p className="">Logged in as: Admin</p>
+        <p className="">Logged in as: {user?.userTypeName}</p>
       </div>
       <div className="bookingTab m-4">
         <TabView>
@@ -720,7 +805,7 @@ const Booking: React.FC = () => {
               </div> */}
             </div>
           </TabPanel>
-          <TabPanel header="Overall Report">
+          {/* <TabPanel header="Overall Report">
             <DataTable
               value={parcelBookingData}
               // ref={dt}
@@ -775,7 +860,7 @@ const Booking: React.FC = () => {
                 style={{ minWidth: '10rem', textTransform: 'capitalize' }}
               ></Column>
             </DataTable>
-          </TabPanel>
+          </TabPanel> */}
         </TabView>
       </div>
     </div>

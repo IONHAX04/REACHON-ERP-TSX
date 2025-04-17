@@ -15,38 +15,62 @@ import decrypt from '../../helper'
 import axios from 'axios'
 
 interface EmployeeDetailsProps {
-  createdAt: null
-  createdBy: null
-  dateOfBirth: '2025-03-31T18:30:00.000Z'
-  deletedAt: null
-  deletedBy: null
-  designation: 'employee 2'
-  qualification: 'BE'
-  refCustId: 'R-EMP-0004'
-  refCustMobileNum: '9876543212'
-  refCusthashedpassword: '$2a$10$HJpIJeA7zu/TluM9uahbxOuWc9x6Oc09qcryWZgKXEWYG.3OyfAHm'
-  refCustpassword: 'XYm}i&)M'
-  refDummy1: null
-  refDummy2: null
-  refDummy3: null
-  refDummy4: null
-  refDummy5: null
-  refEmail: 'employee1002@gmail.com'
-  refMobileNo: '9876543212'
-  refUserFName: 'Employee'
-  refUserId: 22
-  refUserLName: '1002'
-  refUsername: '9876543212'
-  refcomId: 32
-  refdomId: 34
-  updatedAt: null
-  updatedBy: null
-  userTypeId: 6
-  userTypeName: 'employee 2'
+  createdAt: string
+  createdBy: string
+  dateOfBirth: string
+  deletedAt: string
+  deletedBy: string
+  designation: string
+  qualification: string
+  refCustId: string
+  refCustMobileNum: string
+  refCusthashedpassword: string
+  refCustpassword: string
+  refDummy1: string
+  refDummy2: string
+  refDummy3: string
+  refDummy4: string
+  refDummy5: string
+  refEmail: string
+  refMobileNo: string
+  refUserFName: string
+  refUserId: number
+  refUserLName: string
+  refUsername: string
+  refcomId: number
+  refdomId: number
+  updatedAt: string
+  updatedBy: string
+  userTypeId: number
+  userTypeName: string
+}
+
+interface UserDetails {
+  refUserId: number
+  refCustId: string
+  refUserFName: string
+  refUserLName: string
+  refCustMobileNum: string
+  refCustpassword: string
+  refCusthashedpassword: string
+  refUsername: string
+  userTypeName: string
 }
 
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<EmployeeDetailsProps[] | []>([])
+
+  const [user, setUser] = useState<UserDetails>()
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('userDetails')
+    console.log('storedUser', storedUser)
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+  }, [])
+
   // const [selectedProducts, setSelectedProducts] = useState(null)
   const [globalFilter, setGlobalFilter] = useState<string>('')
   const [visibleRight, setVisibleRight] = useState(false)
@@ -74,7 +98,48 @@ const Employees: React.FC = () => {
   }
 
   const exportCSV = () => {
-    dt.current?.exportCSV()
+    if (dt.current) {
+      const exportData = employees.map((emp, index) => ({
+        sno: index + 1,
+        refCustId: emp.refCustId,
+        employeeName: `${emp.refUserFName} ${emp.refUserLName}`,
+        userTypeName: emp.userTypeName,
+        refEmail: emp.refEmail,
+        refCustMobileNum: emp.refCustMobileNum,
+        payrollStatus: emp['name'] || '' // If you have this field or modify accordingly
+      }))
+
+      const csvContent = [
+        [
+          'S.No',
+          'Employee ID',
+          'Employee Name',
+          'Designation',
+          'Email',
+          'User Name',
+          'Payroll Status'
+        ],
+        ...exportData.map((emp) => [
+          emp.sno,
+          emp.refCustId,
+          emp.employeeName,
+          emp.userTypeName,
+          emp.refEmail,
+          emp.refCustMobileNum,
+          emp.payrollStatus
+        ])
+      ]
+        .map((row) => row.join(','))
+        .join('\n')
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.setAttribute('download', 'employees.csv')
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
   }
 
   const onEmployeeAdded = () => {
@@ -121,7 +186,7 @@ const Employees: React.FC = () => {
     <div>
       <div className="primaryNav">
         <p>Employee</p>
-        <p className="">Logged in as: Admin</p>
+        <p className="">Logged in as: {user?.userTypeName}</p>
       </div>
       <div className="m-3">
         <Toast ref={toast} />
@@ -182,7 +247,7 @@ const Employees: React.FC = () => {
               header="User Name"
               style={{ minWidth: '13rem' }}
             ></Column>
-            <Column field="name" header="Payroll Status" style={{ minWidth: '13rem' }}></Column>
+            {/* <Column field="name" header="Payroll Status" style={{ minWidth: '13rem' }}></Column> */}
           </DataTable>
         </div>
       </div>

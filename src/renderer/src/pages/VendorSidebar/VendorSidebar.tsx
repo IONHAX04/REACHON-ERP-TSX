@@ -256,20 +256,20 @@ const VendorSidebar: React.FC = () => {
     </>
   )
 
-  const quantityTemplate = (rowData) => {
-    return (
-      <div className="flex align-items-center justify-content-center">
-        <Button
-          rounded
-          outlined
-          text
-          severity="info"
-          icon="pi pi-pencil"
-          onClick={() => console.log('Edit quantity for', rowData.id)}
-        />
-      </div>
-    )
-  }
+  // const _quantityTemplate = (rowData) => {
+  //   return (
+  //     <div className="flex align-items-center justify-content-center">
+  //       <Button
+  //         rounded
+  //         outlined
+  //         text
+  //         severity="info"
+  //         icon="pi pi-pencil"
+  //         onClick={() => console.log('Edit quantity for', rowData.id)}
+  //       />
+  //     </div>
+  //   )
+  // }
 
   const customerTypeTemplate = (rowData) => {
     return (
@@ -306,12 +306,12 @@ const VendorSidebar: React.FC = () => {
           body={customerTypeTemplate}
           style={{ minWidth: '10rem' }}
         ></Column>
-        <Column
+        {/* <Column
           field="edit"
           header="Actions"
           body={quantityTemplate}
           style={{ minWidth: '10rem' }}
-        ></Column>
+        ></Column> */}
       </DataTable>
     </div>
   )

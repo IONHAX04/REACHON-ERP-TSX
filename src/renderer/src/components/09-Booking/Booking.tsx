@@ -31,6 +31,7 @@ import {
   UserRoundCheck,
   Weight
 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 interface CustomerDetailsProps {
   createdAt: string
@@ -327,7 +328,7 @@ const Booking: React.FC = () => {
             summary: 'Order Placed',
             detail: `Order Placed Successfully`
           })
-          window.open('/testingPDF', '_blank')
+          window.open('/testingPDF')
         } else {
           toast.current?.show({
             severity: 'warn',
@@ -390,7 +391,10 @@ const Booking: React.FC = () => {
     }
   }, [actualWeight])
 
-  const handlePdfDownload = () => {}
+  const navigate = useNavigate()
+  const handlePdfDownload = () => {
+    navigate('/testingPDF')
+  }
 
   return (
     <div>

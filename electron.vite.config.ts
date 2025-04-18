@@ -19,6 +19,8 @@ export default defineConfig({
     server: {
       host: true,
       port: 5173
-    }
+    },
+    // Handling static assets like .xlsx files
+    assetsInclude: ['**/*.xlsx'] // 👈 This tells Vite to treat .xlsx as assets
   }
 })

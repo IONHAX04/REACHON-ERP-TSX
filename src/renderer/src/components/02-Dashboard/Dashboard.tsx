@@ -3,7 +3,7 @@ import { IndianRupee, ShoppingCart, TriangleAlert, Undo2 } from 'lucide-react'
 import { Divider } from 'primereact/divider'
 
 import profile from '../../assets/dashboard/profile.svg'
-import coverImg from '../../assets/zadpro.jpg'
+import coverImg from '../../assets/dashboard/1.jpg'
 
 import './Dashboard.css'
 import { useEffect, useState } from 'react'

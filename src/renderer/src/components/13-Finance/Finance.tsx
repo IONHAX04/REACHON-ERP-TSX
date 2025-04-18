@@ -5,8 +5,8 @@ import { Column } from 'primereact/column'
 import { Button } from 'primereact/button'
 import { Dialog } from 'primereact/dialog'
 import { InputText } from 'primereact/inputtext'
-import axios from 'axios'
-import decrypt from '@renderer/helper'
+// import axios from 'axios'
+// import decrypt from '@renderer/helper'
 
 interface Product {
   id: string
@@ -70,20 +70,20 @@ const Finance: React.FC = () => {
     }
   }, [])
 
-  const getFinanceDetails = () => {
-    axios
-      .get(import.meta.env.VITE_API_URL + '/route/listFinance', {
-        headers: { Authorization: localStorage.getItem('JWTtoken') }
-      })
-      .then((res) => {
-        const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data line 33 ======== ', data)
-        setProducts(data.data)
-      })
-      .catch((error) => {
-        console.error('Error fetching vendor details:', error)
-      })
-  }
+  // const getFinanceDetails = () => {
+  //   axios
+  //     .get(import.meta.env.VITE_API_URL + '/route/listFinance', {
+  //       headers: { Authorization: localStorage.getItem('JWTtoken') }
+  //     })
+  //     .then((res) => {
+  //       const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
+  //       console.log('data line 33 ======== ', data)
+  //       setProducts(data.data)
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching vendor details:', error)
+  //     })
+  // }
 
   // useEffect(() => {
   //   getFinanceDetails()
@@ -140,7 +140,8 @@ const Finance: React.FC = () => {
           balance: 11000
         }
       ]
-      setProducts(staticData)
+      console.log('staticData', staticData)
+      // setProducts(staticData)
     }
   }, [])
 

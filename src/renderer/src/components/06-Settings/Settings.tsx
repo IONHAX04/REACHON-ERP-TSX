@@ -8,7 +8,7 @@ import categories from '../../assets/settings/categories.svg'
 import partners from '../../assets/settings/partners.svg'
 import price from '../../assets/settings/price.svg'
 import customers from '../../assets/settings/customer.svg'
-import loginCred from '../../assets/settings/loginCred.svg'
+// import loginCred from '../../assets/settings/loginCred.svg'
 // import pincode from '../../assets/settings/pincode.svg'
 
 import { useEffect, useState } from 'react'

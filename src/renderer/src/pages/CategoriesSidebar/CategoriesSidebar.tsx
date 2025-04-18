@@ -8,6 +8,7 @@ import { InputText } from 'primereact/inputtext'
 import { Dropdown } from 'primereact/dropdown'
 import axios from 'axios'
 import decrypt from '../../helper'
+import { LayoutDashboard, LayoutPanelTop } from 'lucide-react'
 
 interface Category {
   name: string
@@ -193,7 +194,7 @@ const CategoriesSidebar: React.FC = () => {
             <p>Categories:</p>
             <div className="p-inputgroup flex-1">
               <span className="p-inputgroup-addon">
-                <i className="pi "></i>
+                <LayoutDashboard size={22} />{' '}
               </span>
               <Dropdown
                 value={selectedCategory}
@@ -222,7 +223,7 @@ const CategoriesSidebar: React.FC = () => {
             <p>Sub-Categories:</p>
             <div className="p-inputgroup flex-1">
               <span className="p-inputgroup-addon">
-                <i className="pi "></i>
+                <LayoutPanelTop size={20} />{' '}
               </span>
               <InputText
                 value={subCategory}
@@ -244,7 +245,6 @@ const CategoriesSidebar: React.FC = () => {
         showGridlines
         stripedRows
         scrollable
-        scrollHeight="400px"
         rowGroupMode="rowspan"
         groupRowsBy="refCategory"
         sortMode="single"

@@ -38,7 +38,7 @@ const Report: React.FC = () => {
 
   const [customersdetail, setCustoemrDetails] = useState<CustomerDetailsProps[] | []>([])
 
-  const toast = useRef(null)
+  const toast = useRef<Toast>(null)
 
   const getPartners = () => {
     axios
@@ -109,9 +109,16 @@ const Report: React.FC = () => {
       </div>
     )
   }
-
   const handlePdfDownload = () => {
-    window.open('/reportPDF')
+    toast.current?.show({
+      severity: 'info',
+      summary: 'Report Scheduled',
+      detail: 'The report will be sent to your email. Kindly check after some time. ',
+      life: 3000
+    })
+
+    // Open PDF or send request
+    // window.open('/reportPDF')
   }
 
   const payButtonTemplate = (_rowData) => <Button label="Edit" className="p-button-success" />
@@ -125,7 +132,7 @@ const Report: React.FC = () => {
         </div>
         <div className="m-3" style={{ scrollbarWidth: 'thin', overflow: 'hidden' }}>
           <div className="flex mt-3 mb-3 gap-3">
-            <Dropdown
+            {/* <Dropdown
               value={selectedVendors}
               onChange={(e) => setSelectedVendors(e.value)}
               options={customersdetail}
@@ -144,7 +151,7 @@ const Report: React.FC = () => {
               value={endDate}
               onChange={(e) => setEndDate(e.value)}
               placeholder="Pick End Date"
-            />
+            /> */}
             <Button
               label="Generate Report"
               severity="info"

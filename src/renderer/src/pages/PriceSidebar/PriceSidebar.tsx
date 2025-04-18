@@ -273,16 +273,18 @@ const PriceSidebar: React.FC = () => {
             <Divider />
           </>
         )}
-        <MultiSelect
-          value={selectedPartners}
-          onChange={(e) => setSelectedPartners(e.value)}
-          options={partners}
-          optionLabel="partnersName"
-          display="chip"
-          placeholder="Select Vendors"
-          maxSelectedLabels={3}
-          className="w-full md:w-14rem"
-        />
+        <div className="flex w-full justify-content-end">
+          <MultiSelect
+            value={selectedPartners}
+            onChange={(e) => setSelectedPartners(e.value)}
+            options={partners}
+            optionLabel="partnersName"
+            display="chip"
+            placeholder="Select Vendors"
+            maxSelectedLabels={3}
+            className="w-full md:w-14rem"
+          />
+        </div>
         <DataTable
           scrollable
           stripedRows

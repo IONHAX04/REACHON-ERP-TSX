@@ -48,7 +48,7 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
       console.error('No designation selected.')
       return
     }
-    console.log('designation', selectedDesignation)
+
     axios
       .post(
         import.meta.env.VITE_API_URL + '/Routes/addEmployee',
@@ -69,27 +69,27 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data - line 60', data)
+
         if (data.success) {
-          // getCategory();
+          // Clear the form
+          setFirstName('')
+          setLastName('')
+          setEmail('')
+          setMobile('')
+          setQualification('')
+          setSelectedDesignation(null)
+          setDateOfBirth(null)
+
+          if (onEmployeeAdded) {
+            onEmployeeAdded()
+          }
         }
       })
       .catch((error) => {
-        console.error('Error fetching vendor details:', error)
+        console.error('Error adding employee:', error)
       })
-
-    // Reset fields
-    setFirstName('')
-    setLastName('')
-    setEmail('')
-    setMobile('')
-    setQualification('')
-    setSelectedDesignation(null)
-    setDateOfBirth(null)
-
-    if (onEmployeeAdded) {
-      onEmployeeAdded()
-    }
   }
+
   return (
     <div>
       <h3>Add Employee</h3>

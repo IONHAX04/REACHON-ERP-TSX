@@ -105,28 +105,18 @@ const Employees: React.FC = () => {
         employeeName: `${emp.refUserFName} ${emp.refUserLName}`,
         userTypeName: emp.userTypeName,
         refEmail: emp.refEmail,
-        refCustMobileNum: emp.refCustMobileNum,
-        payrollStatus: emp['name'] || '' // If you have this field or modify accordingly
+        refCustMobileNum: emp.refCustMobileNum
       }))
 
       const csvContent = [
-        [
-          'S.No',
-          'Employee ID',
-          'Employee Name',
-          'Designation',
-          'Email',
-          'User Name',
-          'Payroll Status'
-        ],
+        ['S.No', 'Employee ID', 'Employee Name', 'Designation', 'Email', 'User Name'],
         ...exportData.map((emp) => [
           emp.sno,
           emp.refCustId,
           emp.employeeName,
           emp.userTypeName,
           emp.refEmail,
-          emp.refCustMobileNum,
-          emp.payrollStatus
+          emp.refCustMobileNum
         ])
       ]
         .map((row) => row.join(','))
@@ -143,6 +133,7 @@ const Employees: React.FC = () => {
   }
 
   const onEmployeeAdded = () => {
+    console.log('employee added')
     fetchEmployees() // Refresh the employees list
     setVisibleRight(false) // Close the sidebar
   }

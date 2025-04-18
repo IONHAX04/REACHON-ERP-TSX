@@ -68,7 +68,7 @@ const PartnersSidebar: React.FC = () => {
 
   const header = (
     <>
-      <div className="flex flex-wrap gap-2 align-items-center justify-content-end">
+      {/* <div className="flex flex-wrap gap-2 align-items-center justify-content-end">
         <Button
           label="Add"
           severity="success"
@@ -77,7 +77,7 @@ const PartnersSidebar: React.FC = () => {
             setShowInputSection(!showInputSection)
           }}
         />
-      </div>
+      </div> */}
       {showInputSection && (
         <div className="flex mt-3 gap-2">
           <InputText

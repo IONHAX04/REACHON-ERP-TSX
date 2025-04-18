@@ -7,15 +7,16 @@ import { InputIcon } from 'primereact/inputicon'
 import { InputText } from 'primereact/inputtext'
 import { Toolbar } from 'primereact/toolbar'
 import { Button } from 'primereact/button'
-// import { MultiSelect } from 'primereact/multiselect'
+import { MultiSelect } from 'primereact/multiselect'
 import { Sidebar } from 'primereact/sidebar'
-// import { Calendar } from 'primereact/calendar'
+import { Calendar } from 'primereact/calendar'
 import { Toast } from 'primereact/toast'
 
 import './Key.css'
 import UploadExcelSidebar from '../../pages/UploadExcelSidebar/UploadExcelSidebar'
 import axios from 'axios'
 import decrypt from '../../helper'
+import { Nullable } from 'primereact/ts-helpers'
 
 interface Customer {
   id: number
@@ -54,11 +55,13 @@ const Key: React.FC = () => {
   const [globalFilter, setGlobalFilter] = useState<string | null>(null)
   const [customers, setCustomers] = useState([])
   const dt = useRef<DataTable<Customer[]> | null>(null)
-  // const [selectedVendors, setSelectedVendors] = useState(null)
-  // const [selectedState, setSelectedState] = useState(null)
+  const [selectedVendors, setSelectedVendors] = useState(null)
+  const [selectedState, setSelectedState] = useState(null)
   const [visibleRight, setVisibleRight] = useState(false)
-  // const [dates, setDates] = useState(null)
-  // const [vendors, setVendors] = useState(null)
+  const [vendors, setVendors] = useState<any[]>([])
+
+  const [multiDates, setMultiDates] = useState<Nullable<Date[]>>(null)
+  const [rangeDates, setRangeDates] = useState<Nullable<(Date | null)[]>>(null)
 
   useEffect(() => {
     getPartners()
@@ -72,20 +75,20 @@ const Key: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data', data)
-        // setVendors(data.partners)
+        setVendors(data.partners)
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
       })
   }
 
-  // const state = [
-  //   { name: 'Not Assigned', code: 1 },
-  //   { name: 'Assigned', code: 2 },
-  //   { name: 'Dispatched', code: 3 },
-  //   { name: 'Delivered', code: 4 },
-  //   { name: 'Cancelled', code: 5 }
-  // ]
+  const state = [
+    { name: 'Not Assigned', code: 1 },
+    { name: 'Assigned', code: 2 },
+    { name: 'Dispatched', code: 3 },
+    { name: 'Delivered', code: 4 },
+    { name: 'Cancelled', code: 5 }
+  ]
 
   useEffect(() => {
     axios
@@ -105,28 +108,6 @@ const Key: React.FC = () => {
         console.error('Error fetching vendor details:', error)
       })
   }, [])
-
-  // const handleEdit = (rowData) => {
-  //   toast.current?.show({
-  //     severity: 'info',
-  //     summary: 'Edit Action',
-  //     detail: `Tracking ID: ${rowData.trackingId}`
-  //   })
-  // }
-
-  // const actionBodyTemplate = (rowData) => {
-  //   return (
-  //     <div className="flex gap-2">
-  //       <Button
-  //         icon="pi pi-pencil"
-  //         className="p-button-rounded p-button-text p-button-info"
-  //         onClick={() => handleEdit(rowData)}
-  //         tooltipOptions={{ position: 'bottom' }}
-  //         tooltip="Edit"
-  //       />
-  //     </div>
-  //   )
-  // }
 
   const leftToolbarTemplate = () => {
     return (
@@ -177,7 +158,7 @@ const Key: React.FC = () => {
           <p className="">Logged in as: {user?.userTypeName}</p>
         </div>
         <div className="m-3">
-          {/* <div className="flex gap-2">
+          <div className="flex gap-2">
             <MultiSelect
               value={selectedVendors}
               onChange={(e) => setSelectedVendors(e.value)}
@@ -199,25 +180,26 @@ const Key: React.FC = () => {
               maxSelectedLabels={3}
             />
             <Calendar
-              value={dates}
-              onChange={(e) => setDates(e.value)}
+              value={multiDates}
+              onChange={(e) => setMultiDates(e.value)}
               selectionMode="multiple"
               readOnlyInput
               className="flex-1"
               placeholder="Pick Multiple Dates"
               showButtonBar
             />
+
             <Calendar
-              value={dates}
-              onChange={(e) => setDates(e.value)}
+              value={rangeDates}
+              onChange={(e) => setRangeDates(e.value)}
               selectionMode="range"
               readOnlyInput
               className="flex-1"
-              showButtonBar
               placeholder="Pick Date Range"
+              showButtonBar
               hideOnRangeSelection
             />
-          </div> */}
+          </div>
           <Toolbar
             className="mb-2 mt-2"
             left={leftToolbarTemplate}
@@ -272,15 +254,6 @@ const Key: React.FC = () => {
               header="Validity Date"
               style={{ minWidth: '10rem', textTransform: 'capitalize' }}
             ></Column>
-            {/* <Column
-            header="Action"
-            body={actionBodyTemplate}
-            style={{
-              textAlign: 'center',
-              minWidth: '10rem',
-              textTransform: 'capitalize'
-            }}
-          ></Column> */}
           </DataTable>
         </div>
 

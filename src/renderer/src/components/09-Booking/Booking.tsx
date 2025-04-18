@@ -327,7 +327,7 @@ const Booking: React.FC = () => {
             summary: 'Order Placed',
             detail: `Order Placed Successfully`
           })
-          // window.open('/testingPDF', '_blank')
+          window.open('/testingPDF', '_blank')
         } else {
           toast.current?.show({
             severity: 'warn',
@@ -389,6 +389,9 @@ const Booking: React.FC = () => {
       setNetAmount('150')
     }
   }, [actualWeight])
+
+  const handlePdfDownload = () => {}
+
   return (
     <div>
       <Toast ref={toast} />
@@ -797,70 +800,11 @@ const Booking: React.FC = () => {
               <div style={{ marginTop: '20px' }} onClick={() => handlePayload()}>
                 <Button>Book Parcel</Button>
               </div>
-              {/* <div
-                style={{ marginTop: "20px" }}
-                onClick={() => handlePdfDownload()}
-              >
+              <div style={{ marginTop: '20px' }} onClick={() => handlePdfDownload()}>
                 <Button>DOWNLOAD</Button>
-              </div> */}
+              </div>
             </div>
           </TabPanel>
-          {/* <TabPanel header="Overall Report">
-            <DataTable
-              value={parcelBookingData}
-              // ref={dt}
-              scrollable
-              showGridlines
-              stripedRows
-              className="transactionDetailsTable"
-              // header={header}
-              // globalFilter={globalFilter}
-              // scrollHeight="350px"
-            >
-              <Column
-                field="id"
-                header="S.No"
-                style={{ minWidth: '3rem' }}
-                body={(_rowData, { rowIndex }) => rowIndex + 1}
-              ></Column>
-              <Column
-                field="vendorLeaf"
-                header="Vendor Leaf"
-                frozen
-                style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-              ></Column>
-              <Column
-                field="refCustId"
-                header="Leaf"
-                style={{ minWidth: '14rem', textTransform: 'capitalize' }}
-              ></Column>
-              <Column
-                field="partnersName"
-                header="Partner Name"
-                style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-              ></Column>
-              <Column
-                field="declaredValue"
-                header="Declared Value"
-                style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-              ></Column>
-              <Column
-                field="weight"
-                header="Weight"
-                style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-              ></Column>
-              <Column
-                field="netAmount"
-                header="Amount"
-                style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-              ></Column>
-              <Column
-                field="consigneePincode"
-                header="Destination"
-                style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-              ></Column>
-            </DataTable>
-          </TabPanel> */}
         </TabView>
       </div>
     </div>

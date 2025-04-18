@@ -13,9 +13,15 @@ import * as XLSX from 'xlsx'
 import axios from 'axios'
 import decrypt from '../../helper'
 
+interface SetJsonData {
+  purchasedDate: string
+  vendor: string
+  vendorLeaf: string
+}
+
 const UploadExcelSidebar: React.FC = () => {
   const [checked, setChecked] = useState(false)
-  const [uploadedData, setUploadedData] = useState(null)
+  const [uploadedData, setUploadedData] = useState<SetJsonData[] | null>(null)
   const [isDuplicateFound, setIsDuplicateFound] = useState(false)
   const toast = useRef<Toast>(null)
 
@@ -72,10 +78,13 @@ const UploadExcelSidebar: React.FC = () => {
 
     reader.onload = (e) => {
       try {
-        const data = new Uint8Array(e.target.result)
+        const result = e?.target?.result
+        if (!result) throw new Error('File could not be read')
+
+        const data = new Uint8Array(result as ArrayBuffer)
         const workbook = XLSX.read(data, { type: 'array' })
         const worksheet = workbook.Sheets[workbook.SheetNames[0]]
-        let jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: false })
+        let jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, { raw: false })
 
         // Check for required columns
         if (!checkRequiredColumns(jsonData)) return
@@ -119,7 +128,8 @@ const UploadExcelSidebar: React.FC = () => {
         })
 
         setIsDuplicateFound(duplicateFound)
-        setUploadedData(jsonData)
+        console.log('jsonData', jsonData)
+        setUploadedData(jsonData as SetJsonData[])
       } catch (error) {
         console.log('error', error)
         toast.current?.show({
@@ -258,7 +268,7 @@ const UploadExcelSidebar: React.FC = () => {
               showGridlines
               rowClassName={rowClassName}
             >
-              <Column header="S.No" body={(rowData, { rowIndex }) => rowIndex + 1} />
+              <Column header="S.No" body={(_rowData, { rowIndex }) => rowIndex + 1} />
               {uploadedData &&
                 Object.keys(uploadedData[0]).map((key, index) => (
                   <Column key={index} field={key} header={formatHeader(key)} />

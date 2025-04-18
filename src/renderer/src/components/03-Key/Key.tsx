@@ -28,6 +28,16 @@ interface Customer {
   validityDate: string // or appropriate type
 }
 
+interface StateOption {
+  name: string
+  code: number
+}
+
+interface Vendor {
+  partnersName: string
+  // Add other fields if needed
+}
+
 interface UserDetails {
   refUserId: number
   refCustId: string
@@ -53,10 +63,12 @@ const Key: React.FC = () => {
   }, [])
 
   const [globalFilter, setGlobalFilter] = useState<string | null>(null)
-  const [customers, setCustomers] = useState([])
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
   const dt = useRef<DataTable<Customer[]> | null>(null)
-  const [selectedVendors, setSelectedVendors] = useState(null)
-  const [selectedState, setSelectedState] = useState(null)
+  const [selectedVendors, setSelectedVendors] = useState<Vendor[] | null>(null)
+  const [selectedState, setSelectedState] = useState<StateOption[] | null>(null)
+
   const [visibleRight, setVisibleRight] = useState(false)
   const [vendors, setVendors] = useState<any[]>([])
 
@@ -99,8 +111,8 @@ const Key: React.FC = () => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data line 63 --------- ', data)
         if (data.success) {
-          console.log('data.success', data.success)
           setCustomers(data.data)
+          setFilteredCustomers(data.data)
         }
       })
       .catch((error) => {
@@ -108,6 +120,38 @@ const Key: React.FC = () => {
         console.error('Error fetching vendor details:', error)
       })
   }, [])
+
+  useEffect(() => {
+    let filtered = [...customers]
+
+    if (selectedVendors && selectedVendors.length > 0) {
+      const vendorNames = selectedVendors.map((v: any) => v.partnersName)
+      filtered = filtered.filter((c) => vendorNames.includes(c.vendor))
+    }
+
+    if (selectedState && selectedState.length > 0) {
+      const stateNames = selectedState.map((s: any) => s.name)
+      filtered = filtered.filter((c) => stateNames.includes(c.refStatus))
+    }
+
+    if (multiDates && multiDates.length > 0) {
+      const dateStrings = multiDates.map((d) => d.toDateString())
+      filtered = filtered.filter((c) =>
+        dateStrings.includes(new Date(c.purchasedDate).toDateString())
+      )
+    }
+
+    if (rangeDates && rangeDates[0] && rangeDates[1]) {
+      const start = rangeDates[0]
+      const end = rangeDates[1]
+      filtered = filtered.filter((c) => {
+        const date = new Date(c.purchasedDate)
+        return date >= start! && date <= end!
+      })
+    }
+
+    setFilteredCustomers(filtered)
+  }, [selectedVendors, selectedState, multiDates, rangeDates, customers])
 
   const leftToolbarTemplate = () => {
     return (
@@ -181,23 +225,35 @@ const Key: React.FC = () => {
             />
             <Calendar
               value={multiDates}
-              onChange={(e) => setMultiDates(e.value)}
+              onChange={(e) => {
+                setMultiDates(e.value)
+                setRangeDates(null) // clear range calendar
+              }}
               selectionMode="multiple"
               readOnlyInput
               className="flex-1"
               placeholder="Pick Multiple Dates"
               showButtonBar
+              disabled={Array.isArray(rangeDates) && rangeDates.length > 0}
+              panelClassName="multi-calendar"
+              showIcon
             />
 
             <Calendar
               value={rangeDates}
-              onChange={(e) => setRangeDates(e.value)}
+              onChange={(e) => {
+                setRangeDates(e.value)
+                setMultiDates(null) // clear multiple calendar
+              }}
               selectionMode="range"
               readOnlyInput
               className="flex-1"
               placeholder="Pick Date Range"
               showButtonBar
               hideOnRangeSelection
+              disabled={Array.isArray(multiDates) && multiDates.length > 0}
+              panelClassName="range-calendar"
+              showIcon
             />
           </div>
           <Toolbar
@@ -207,7 +263,7 @@ const Key: React.FC = () => {
           ></Toolbar>
 
           <DataTable
-            value={customers}
+            value={filteredCustomers}
             ref={dt}
             scrollable
             showGridlines

@@ -13,16 +13,21 @@ import decrypt from '../../helper'
 import { Toast } from 'primereact/toast'
 // import { DataTable } from 'primereact/datatable'
 // import { Column } from 'primereact/column'
+import TestingPDF from '../11-TestingPDF/TestingPDF'
+import { pdf } from '@react-pdf/renderer'
+
 import {
   ArrowUpFromLine,
   BadgeIndianRupee,
   Boxes,
+  Building2,
   FileStack,
   FileText,
   Landmark,
   LocateFixed,
   Mail,
   MapPin,
+  MapPinned,
   Maximize2,
   Minimize2,
   Phone,
@@ -31,7 +36,8 @@ import {
   UserRoundCheck,
   Weight
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+// import { useNavigate } from 'react-router-dom'
+// import TestingPDF from '../11-TestingPDF/TestingPDF'
 
 interface CustomerDetailsProps {
   createdAt: string
@@ -133,6 +139,39 @@ interface SelectedCustomerDetailsProps {
   updatedBy: string
 }
 
+interface PartnerProps {
+  createdAt: string
+  createdBy: string
+  deletedAt: string
+  deletedBy: string
+  partnersId: number
+  partnersName: string
+  phoneNumber: string
+  refDummy1: string
+  refDummy2: string
+  refDummy3: string
+  refDummy4: string
+  refDummy5: string
+  refUserId: string
+  updatedAt: string
+  updatedBy: string
+  validity: string
+}
+
+interface ParcelDetailsProps {
+  name: string
+  code: number
+}
+
+interface VendorLeafProps {
+  purchasedDate: string
+  refStatus: string
+  validity: string
+  validityDate: string
+  vendor: string
+  vendorLeaf: string
+}
+
 const Booking: React.FC = () => {
   const toast = useRef<Toast>(null)
   const [user, setUser] = useState<UserDetails>()
@@ -147,9 +186,12 @@ const Booking: React.FC = () => {
   }, [])
 
   const [vendors, setVendors] = useState<any[]>([])
-  const [partners, setPartners] = useState(null)
+  const [partners, setPartners] = useState<PartnerProps | null>(null)
   const [value, setValue] = useState('')
-  const [parcelType, setParcelType] = useState(null)
+  const [parcelType, setParcelType] = useState<ParcelDetailsProps | null>(null)
+
+  const [customers, setCustomers] = useState([])
+  const [selectedLeaf, setSelectedLeaf] = useState<VendorLeafProps | null>(null)
 
   const [customerDetails, setCustomersDetails] = useState<CustomerDetailsProps[] | []>([])
   const [selectedCustomerDetails, setSelectedCustomerDetails] =
@@ -161,6 +203,8 @@ const Booking: React.FC = () => {
   const [consigerPhone, setConsigerPhone] = useState('')
   const [consignerPincode, setConsigerPincode] = useState('')
   const [consigerEmail, setConsigerEmail] = useState('')
+  const [consignorCity, setConsignorCity] = useState('')
+  const [consignorState, setConsignorState] = useState('')
 
   const [consigeeRefNumber, setConsigeeRefNumber] = useState('')
   const [consigneName, setConsigneeName] = useState('')
@@ -169,6 +213,8 @@ const Booking: React.FC = () => {
   const [consigneePincode, setConsigneePincode] = useState('')
   const [consigneePhone, setConsigneePhone] = useState('')
   const [consigneeEmail, setConsigneeEmail] = useState('')
+  const [consigneeCity, setConsigneeCity] = useState('')
+  const [consigneeState, setConsigneeState] = useState('')
 
   const [contentSpecifications, setContentSpecifications] = useState('')
   const [paperEnclosed, setPaperEnclosed] = useState('')
@@ -234,6 +280,12 @@ const Booking: React.FC = () => {
   }
 
   const handlePayload = () => {
+    const date = new Date()
+    const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' }
+    const formattedDate = date.toLocaleDateString('en-GB', options).replace(',', '')
+
+    console.log('vendor name:', selectedLeaf)
+
     const requiredFields = [
       { label: 'Partner Name', value: partners },
       { label: 'Parcel Type', value: parcelType },
@@ -254,7 +306,7 @@ const Booking: React.FC = () => {
       { label: 'Declared Value', value: declaredValue },
       { label: 'No. of Pieces', value: numberOfPieces },
       { label: 'Actual Weight', value: actualWeight },
-      // { label: 'Dimension', value: checked },
+      { label: 'Dimension', value: checked },
       { label: 'Net Amount', value: netAmoutn },
       { label: 'Pickup Charge', value: pickupCharge },
       { label: 'Count', value: count },
@@ -275,6 +327,103 @@ const Booking: React.FC = () => {
       return
     }
 
+    axios
+      .post(
+        'https://dtdcapi.shipsy.io/api/customer/integration/consignment/softdata',
+        {
+          consignments: [
+            {
+              customer_code: 'EO1727',
+              service_type_id: 'B2C PRIORITY',
+              load_type: parcelType?.name,
+              description: 'test',
+              dimension_unit: 'cm',
+              length: length,
+              width: weight,
+              height: height,
+              weight_unit: 'kg',
+              weight: actualWeight,
+              declared_value: netAmoutn,
+              num_pieces: String(count),
+              origin_details: {
+                name: consignersName,
+                phone: consigerPhone,
+                alternate_phone: consigerPhone,
+                address_line_1: consignerAddress,
+                address_line_2: consignerAddress,
+                pincode: consignerPincode,
+                city: consignorCity,
+                state: consignorState
+              },
+              destination_details: {
+                name: consigneName,
+                phone: consigneePhone,
+                alternate_phone: consigneePhone,
+                address_line_1: consignerAddress,
+                address_line_2: '',
+                pincode: consigneePincode,
+                city: consigneeCity,
+                state: consigneeState
+              },
+              return_details: {
+                address_line_1: consignerAddress,
+                address_line_2: consignerAddress,
+                city_name: consignorCity,
+                name: consignersName,
+                phone: consigerPhone,
+                pincode: consignerPincode,
+                state_name: consignorState,
+                email: consigerEmail,
+                alternate_phone: consigerPhone
+              },
+              customer_reference_number: selectedLeaf?.vendorLeaf,
+              cod_collection_mode: '1',
+              cod_amount: pickupCharge,
+              commodity_id: '99',
+              eway_bill: '',
+              is_risk_surcharge_applicable: false,
+              invoice_number: 'AB001',
+              invoice_date: formattedDate,
+              reference_number: ''
+            }
+          ]
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'api-key': '5dd8e4d35166672758bd1ee8953025'
+          }
+        }
+      )
+      .then((res) => {
+        if (res.data.status === 'OK') {
+          const result = res.data.data[0]
+          if (!result.success) {
+            toast.current?.show({
+              severity: 'error',
+              summary: 'Error',
+              detail: result.message,
+              life: 3000
+            })
+          } else {
+            toast.current?.show({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Consignment created successfully',
+              life: 3000
+            })
+          }
+        }
+      })
+      .catch((err) => {
+        toast.current?.show({
+          severity: 'error',
+          summary: 'Request Failed',
+          detail: err.message || 'Something went wrong',
+          life: 3000
+        })
+      })
+
     console.log('selectedCustomerDetails', selectedCustomerDetails)
     axios
       .post(
@@ -285,13 +434,13 @@ const Booking: React.FC = () => {
           origin: 'Erode',
           destination: value || '-',
           consignorName: consignersName || '-',
-          consignorAddress: consignerAddress || '-',
+          consignorAddress: consignerAddress + ', ' + consignorCity + ', ' + consignorState || '-',
           consignorGSTnumber: consigerGstNumber || '-',
           consignorPhone: consigerPhone || '-',
           consignorEmail: consigerEmail || '-',
           customerRefNo: consigeeRefNumber || '-',
           consigneeName: consigneName || '-',
-          consigneeAddress: consigeeAddress || '-',
+          consigneeAddress: consigeeAddress + ', ' + consigneeCity + ', ' + consigneeState || '-',
           consigneeGSTnumber: consigneeGst || '-',
           consigneePhone: consigneePhone || '-',
           consigneeEmail: consigneeEmail || '-',
@@ -347,8 +496,8 @@ const Booking: React.FC = () => {
   }, [])
 
   const parcels = [
-    { name: 'Non-Document', code: 1 },
-    { name: 'Document', code: 2 }
+    { name: 'NON-DOCUMENT', code: 1 },
+    { name: 'DOCUMENT', code: 2 }
   ]
 
   const modeOfPaymentOpt = [
@@ -356,9 +505,6 @@ const Booking: React.FC = () => {
     { name: 'GPay', code: 2 },
     { name: 'Credited Customer', code: 3 }
   ]
-
-  const [customers, setCustomers] = useState([])
-  const [selectedLeaf, setSelectedLeaf] = useState(null)
 
   useEffect(() => {
     axios
@@ -391,9 +537,18 @@ const Booking: React.FC = () => {
     }
   }, [actualWeight])
 
-  const navigate = useNavigate()
-  const handlePdfDownload = () => {
-    navigate('/testingPDF')
+  const handlePdfDownload = async () => {
+    const doc = <TestingPDF />
+
+    console.log('testing line 410')
+    const pdfBlob = await pdf(doc).toBlob()
+
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(pdfBlob)
+    link.download = 'Receipt.pdf'
+    link.click()
+
+    URL.revokeObjectURL(link.href)
   }
 
   return (
@@ -554,6 +709,28 @@ const Booking: React.FC = () => {
                         />
                       </div>
                     </div>
+                    <div className="card flex flex-column md:flex-row gap-3">
+                      <div className="p-inputgroup flex-1">
+                        <span className="p-inputgroup-addon">
+                          <Building2 size={20} />{' '}
+                        </span>
+                        <InputText
+                          placeholder="City"
+                          value={consignorCity}
+                          onChange={(e) => setConsignorCity(e.target.value)}
+                        />
+                      </div>
+                      <div className="p-inputgroup flex-1">
+                        <span className="p-inputgroup-addon">
+                          <MapPinned size={20} />
+                        </span>
+                        <InputText
+                          placeholder="State"
+                          value={consignorState}
+                          onChange={(e) => setConsignorState(e.target.value)}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 {/* =================== */}
@@ -634,6 +811,28 @@ const Booking: React.FC = () => {
                         placeholder="Email"
                         value={consigneeEmail}
                         onChange={(e) => setConsigneeEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="card flex flex-column md:flex-row gap-3">
+                    <div className="p-inputgroup flex-1">
+                      <span className="p-inputgroup-addon">
+                        <Building2 size={20} />{' '}
+                      </span>
+                      <InputText
+                        placeholder="City"
+                        value={consigneeCity}
+                        onChange={(e) => setConsigneeCity(e.target.value)}
+                      />
+                    </div>
+                    <div className="p-inputgroup flex-1">
+                      <span className="p-inputgroup-addon">
+                        <MapPinned size={20} />
+                      </span>
+                      <InputText
+                        placeholder="State"
+                        value={consigneeState}
+                        onChange={(e) => setConsigneeState(e.target.value)}
                       />
                     </div>
                   </div>
@@ -740,7 +939,7 @@ const Booking: React.FC = () => {
                     <Maximize2 size={20} />
                   </span>
                   <InputText
-                    placeholder="Weight"
+                    placeholder="Length"
                     disabled={!checked}
                     value={weight}
                     onChange={(e) => setWeight(e.target.value)}
@@ -751,7 +950,7 @@ const Booking: React.FC = () => {
                     <Ruler size={20} />
                   </span>
                   <InputText
-                    placeholder="Breadth"
+                    placeholder="Width"
                     disabled={!checked}
                     value={breadth}
                     onChange={(e) => setBreadth(e.target.value)}
@@ -804,8 +1003,8 @@ const Booking: React.FC = () => {
               <div style={{ marginTop: '20px' }} onClick={() => handlePayload()}>
                 <Button>Book Parcel</Button>
               </div>
-              <div style={{ marginTop: '20px' }} onClick={() => handlePdfDownload()}>
-                <Button>DOWNLOAD</Button>
+              <div style={{ marginTop: '20px' }} onClick={handlePdfDownload}>
+                <Button>Download</Button>
               </div>
             </div>
           </TabPanel>

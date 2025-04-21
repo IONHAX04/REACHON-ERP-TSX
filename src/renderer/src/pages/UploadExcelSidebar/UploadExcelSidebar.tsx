@@ -205,7 +205,7 @@ const UploadExcelSidebar: React.FC = () => {
   }
 
   const downloadSampleExcel = () => {
-    const excelURL = '../../../public/excel/sample.xlsx'
+    const excelURL = '../../assets/excel/sample.xlsx'
 
     fetch(excelURL)
       .then((res) => res.blob())

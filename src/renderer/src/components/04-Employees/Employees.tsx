@@ -13,6 +13,9 @@ import { Sidebar } from 'primereact/sidebar'
 import EmployeeSidebar from '../../pages/EmployeeSidebar/EmployeeSidebar'
 import decrypt from '../../helper'
 import axios from 'axios'
+import { TabPanel, TabView } from 'primereact/tabview'
+import PayrollStatus from '@renderer/pages/PayrollStatus/PayrollStatus'
+import PayrollAudit from '@renderer/pages/PayrollAudit/PayrollAudit'
 
 interface EmployeeDetailsProps {
   createdAt: string
@@ -172,9 +175,6 @@ const Employees: React.FC = () => {
     </div>
   )
 
-  const payrollBodyTemplate = () => {
-    return <Button type="button" icon="pi pi-eye" label="View Details"></Button>
-  }
   return (
     <div>
       <div className="primaryNav">
@@ -182,80 +182,84 @@ const Employees: React.FC = () => {
         <p className="">Logged in as: {user?.userTypeName}</p>
       </div>
       <div className="m-3">
-        <Toast ref={toast} />
-        <div className="card">
-          <Toolbar
-            className="mb-4"
-            left={leftToolbarTemplate}
-            right={rightToolbarTemplate}
-          ></Toolbar>
+        <TabView>
+          <TabPanel header="Employee Details">
+            <Toast ref={toast} />
+            <div className="card">
+              <Toolbar
+                className="mb-4"
+                left={leftToolbarTemplate}
+                right={rightToolbarTemplate}
+              ></Toolbar>
 
-          <DataTable
-            ref={dt}
-            value={employees}
-            // selection={selectedProducts}
-            // onSelectionChange={(e) => setSelectedProducts(e.value)}
-            dataKey="id"
-            scrollable
-            stripedRows
-            showGridlines
-            paginator
-            className="employeeDataTable"
-            rows={10}
-            rowsPerPageOptions={[5, 10, 25]}
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Employees"
-            globalFilter={globalFilter}
-            header={header}
-          >
-            <Column
-              field="code"
-              frozen
-              header="S.No"
-              body={(_rowData, rowIndex) => rowIndex.rowIndex + 1}
-              style={{ minWidth: '4rem' }}
-            ></Column>
-            <Column
-              field="refCustId"
-              header="Employee ID"
-              sortable
-              frozen
-              style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-            ></Column>
-            <Column
-              field="firstName"
-              header="Employee Name"
-              frozen
-              body={(rowData) => `${rowData.refUserFName} ${rowData.refUserLName}`}
-              style={{ minWidth: '13rem', textTransform: 'capitalize' }}
-            ></Column>
-            <Column
-              field="userTypeName"
-              sortable
-              header="Designation"
-              style={{ minWidth: '13rem', textTransform: 'capitalize' }}
-            ></Column>
-            <Column field="refEmail" header="Email" style={{ minWidth: '13rem' }}></Column>
-            <Column
-              field="refCustMobileNum"
-              header="User Name"
-              style={{ minWidth: '13rem' }}
-            ></Column>
-            <Column field="salary" header="Salary" style={{ minWidth: '13rem' }}></Column>
-            <Column
-              field="bankAccountNumber"
-              header="Account Number"
-              style={{ minWidth: '13rem' }}
-            ></Column>
-            <Column field="bankBranch" header="Branch" style={{ minWidth: '13rem' }}></Column>
-            <Column
-              field="name"
-              header="Payroll Status"
-              style={{ minWidth: '13rem' }}
-              body={payrollBodyTemplate}
-            ></Column>
-          </DataTable>
-        </div>
+              <DataTable
+                ref={dt}
+                value={employees}
+                // selection={selectedProducts}
+                // onSelectionChange={(e) => setSelectedProducts(e.value)}
+                dataKey="id"
+                scrollable
+                stripedRows
+                showGridlines
+                paginator
+                className="employeeDataTable"
+                rows={10}
+                rowsPerPageOptions={[5, 10, 25]}
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Employees"
+                globalFilter={globalFilter}
+                header={header}
+              >
+                <Column
+                  field="code"
+                  frozen
+                  header="S.No"
+                  body={(_rowData, rowIndex) => rowIndex.rowIndex + 1}
+                  style={{ minWidth: '4rem' }}
+                ></Column>
+                <Column
+                  field="refCustId"
+                  header="Employee ID"
+                  sortable
+                  frozen
+                  style={{ minWidth: '10rem', textTransform: 'capitalize' }}
+                ></Column>
+                <Column
+                  field="firstName"
+                  header="Employee Name"
+                  frozen
+                  body={(rowData) => `${rowData.refUserFName} ${rowData.refUserLName}`}
+                  style={{ minWidth: '13rem', textTransform: 'capitalize' }}
+                ></Column>
+                <Column
+                  field="userTypeName"
+                  sortable
+                  header="Designation"
+                  style={{ minWidth: '13rem', textTransform: 'capitalize' }}
+                ></Column>
+                <Column field="refEmail" header="Email" style={{ minWidth: '13rem' }}></Column>
+                <Column
+                  field="refCustMobileNum"
+                  header="User Name"
+                  style={{ minWidth: '13rem' }}
+                ></Column>
+                <Column field="salary" header="Salary" style={{ minWidth: '13rem' }}></Column>
+                <Column
+                  field="bankAccountNumber"
+                  header="Account Number"
+                  style={{ minWidth: '13rem' }}
+                ></Column>
+                <Column field="bankBranch" header="Branch" style={{ minWidth: '13rem' }}></Column>
+              </DataTable>
+            </div>
+          </TabPanel>
+          <TabPanel header="Payroll Status">
+            <PayrollStatus />
+          </TabPanel>
+          <TabPanel header="Payroll Audit">
+            <PayrollAudit />
+          </TabPanel>
+        </TabView>
       </div>
       <Sidebar
         visible={visibleRight}

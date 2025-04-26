@@ -1,5 +1,4 @@
-import React from 'react'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Dropdown } from 'primereact/dropdown'
 import { InputText } from 'primereact/inputtext'
 import { Calendar } from 'primereact/calendar'
@@ -34,6 +33,7 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
   const [bankBranch, setBankBranch] = useState('')
 
   const [designations, setDesignations] = useState<EmployeeOptionsProps[]>([])
+  const [calculatedSalary, setCalculatedSalary] = useState<number>(0) // For displaying calculated salary
 
   useEffect(() => {
     axios
@@ -49,6 +49,29 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
         console.error('Error fetching vendor details:', error)
       })
   }, [])
+
+  // Function to calculate the salary based on the selected pay frequency and PF deduction
+  const calculateSalary = () => {
+    if (!salary || !pfDeduction) return
+
+    let baseSalary = parseFloat(salary)
+    let deduction = parseFloat(pfDeduction)
+
+    // Calculate deduction amount
+    const deductionAmount = (baseSalary * deduction) / 100
+    const finalSalary = baseSalary - deductionAmount
+
+    // Adjust salary for different pay frequencies
+    if (payFrequency === 'Bi-monthly') {
+      setCalculatedSalary(finalSalary / 2) // Split salary for two months
+    } else {
+      setCalculatedSalary(finalSalary) // Monthly salary
+    }
+  }
+
+  useEffect(() => {
+    calculateSalary()
+  }, [salary, pfDeduction, payFrequency]) // Recalculate whenever salary, PF deduction, or pay frequency changes
 
   const handleAddEmployee = () => {
     if (!selectedDesignation) {
@@ -67,7 +90,8 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
           temp_phone: mobile,
           temp_email: email,
           dateOfBirth: dateOfBirth,
-          qualification: qualification
+          qualification: qualification,
+          salary: calculatedSalary // Send the calculated salary
         },
         {
           headers: { Authorization: localStorage.getItem('JWTtoken') }
@@ -86,6 +110,12 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
           setQualification('')
           setSelectedDesignation(null)
           setDateOfBirth(null)
+          setSalary('')
+          setPayFrequency('Monthly') // Reset to default
+          setPfDeduction('')
+          setTaxId('')
+          setBankAccountNumber('')
+          setBankBranch('')
 
           if (onEmployeeAdded) {
             onEmployeeAdded()
@@ -101,6 +131,7 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
     <div>
       <h3>Add Employee</h3>
       <div className="flex gap-3">
+        {/* First Name and Last Name */}
         <div className="p-inputgroup flex-1">
           <span className="p-inputgroup-addon">
             <i className="pi pi-user"></i>
@@ -136,6 +167,8 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
           />
         </div>
       </div>
+
+      {/* Email and Mobile */}
       <div className="flex gap-3 mt-3">
         <div className="p-inputgroup flex-1">
           <span className="p-inputgroup-addon">
@@ -154,6 +187,8 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
           />
         </div>
       </div>
+
+      {/* Date of Birth and Qualification */}
       <div className="flex gap-3 mt-3">
         <div className="p-inputgroup flex-1">
           <span className="p-inputgroup-addon">
@@ -176,19 +211,10 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
             placeholder="Qualification"
           />
         </div>
-        <div className="p-inputgroup flex-1">
-          <span className="p-inputgroup-addon">
-            <i className="pi pi-indian-rupee"></i>
-          </span>
-          <InputText
-            value={qualification}
-            onChange={(e) => setQualification(e.target.value)}
-            placeholder="Salary"
-          />
-        </div>
       </div>
 
-      <h3>Bank Details</h3>
+      {/* Payroll Details */}
+      <h3>Payroll Details</h3>
 
       <div className="flex gap-3 mt-3">
         <div className="p-inputgroup flex-1">
@@ -208,12 +234,10 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
           <Dropdown
             value={payFrequency}
             onChange={(e) => setPayFrequency(e.value)}
-            options={['Monthly', 'Bi-weekly', 'Hourly']}
+            options={['Monthly', 'Bi-monthly']}
             placeholder="Pay Frequency"
           />
         </div>
-      </div>
-      <div className="flex gap-3 mt-3">
         <div className="p-inputgroup flex-1">
           <span className="p-inputgroup-addon">
             <i className="pi pi-credit-card"></i>
@@ -224,17 +248,15 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
             placeholder="Provident Fund Deduction (%)"
           />
         </div>
-        <div className="p-inputgroup flex-1">
-          <span className="p-inputgroup-addon">
-            <i className="pi pi-id-card"></i>
-          </span>
-          <InputText
-            value={taxId}
-            onChange={(e) => setTaxId(e.target.value)}
-            placeholder="Tax ID (PAN)"
-          />
-        </div>
       </div>
+
+      {/* Calculated Salary Display */}
+      <div className="mt-3">
+        <h4>Calculated Salary: ₹{calculatedSalary}</h4>
+      </div>
+
+      {/* Bank Details */}
+      <h3>Bank Details</h3>
       <div className="flex gap-3 mt-3">
         <div className="p-inputgroup flex-1">
           <span className="p-inputgroup-addon">
@@ -257,6 +279,8 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
           />
         </div>
       </div>
+
+      {/* Submit Button */}
       <div className="flex mt-3 justify-content-end">
         <Button label="Add" severity="success" onClick={handleAddEmployee} />
       </div>

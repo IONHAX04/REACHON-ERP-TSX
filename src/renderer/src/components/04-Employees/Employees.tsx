@@ -217,6 +217,7 @@ const Employees: React.FC = () => {
             <Column
               field="refCustId"
               header="Employee ID"
+              sortable
               frozen
               style={{ minWidth: '10rem', textTransform: 'capitalize' }}
             ></Column>
@@ -229,6 +230,7 @@ const Employees: React.FC = () => {
             ></Column>
             <Column
               field="userTypeName"
+              sortable
               header="Designation"
               style={{ minWidth: '13rem', textTransform: 'capitalize' }}
             ></Column>

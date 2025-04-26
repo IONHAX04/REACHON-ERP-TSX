@@ -3,6 +3,7 @@ import { Dropdown } from 'primereact/dropdown'
 import { InputText } from 'primereact/inputtext'
 import { Calendar } from 'primereact/calendar'
 import { Button } from 'primereact/button'
+import { Toast } from 'primereact/toast'
 import axios from 'axios'
 import decrypt from '../../helper'
 import { Nullable } from 'primereact/ts-helpers'
@@ -17,6 +18,7 @@ interface EmployeeOptionsProps {
 }
 
 const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) => {
+  const toast = React.useRef<Toast>(null)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -26,11 +28,10 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
   const [dateOfBirth, setDateOfBirth] = useState<Nullable<Date>>(null)
   // Payroll Fields
   const [salary, setSalary] = useState('')
-  const [payFrequency, setPayFrequency] = useState<string>('Monthly') // Default to Monthly
   const [pfDeduction, setPfDeduction] = useState('')
-  const [taxId, setTaxId] = useState('')
   const [bankAccountNumber, setBankAccountNumber] = useState('')
   const [bankBranch, setBankBranch] = useState('')
+  const [bankIFSC, setBankIFSC] = useState('')
 
   const [designations, setDesignations] = useState<EmployeeOptionsProps[]>([])
   const [calculatedSalary, setCalculatedSalary] = useState<number>(0) // For displaying calculated salary
@@ -61,19 +62,46 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
     const deductionAmount = (baseSalary * deduction) / 100
     const finalSalary = baseSalary - deductionAmount
 
-    // Adjust salary for different pay frequencies
-    if (payFrequency === 'Bi-monthly') {
-      setCalculatedSalary(finalSalary / 2) // Split salary for two months
-    } else {
-      setCalculatedSalary(finalSalary) // Monthly salary
-    }
+    setCalculatedSalary(finalSalary)
   }
 
   useEffect(() => {
     calculateSalary()
-  }, [salary, pfDeduction, payFrequency]) // Recalculate whenever salary, PF deduction, or pay frequency changes
+  }, [salary, pfDeduction])
+
+  const validateFields = () => {
+    const missingFields: string[] = []
+
+    if (!firstName) missingFields.push('First Name')
+    if (!lastName) missingFields.push('Last Name')
+    if (!email) missingFields.push('Email')
+    if (!mobile) missingFields.push('Mobile')
+    if (!qualification) missingFields.push('Qualification')
+    if (!selectedDesignation) missingFields.push('Designation')
+    if (!dateOfBirth) missingFields.push('Date of Birth')
+    if (!salary) missingFields.push('Base Salary')
+    if (!pfDeduction) missingFields.push('Provident Fund Deduction')
+    if (!bankAccountNumber) missingFields.push('Bank Account Number')
+    if (!bankBranch) missingFields.push('Bank Branch')
+    if (!bankIFSC) missingFields.push('Bank IFSC')
+
+    if (missingFields.length > 0) {
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Missing Fields',
+        detail: `Please fill in the following fields: ${missingFields.join(', ')}`,
+        life: 3000
+      })
+      return false
+    }
+    return true
+  }
 
   const handleAddEmployee = () => {
+    if (!validateFields()) {
+      return
+    }
+
     if (!selectedDesignation) {
       console.error('No designation selected.')
       return
@@ -91,7 +119,12 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
           temp_email: email,
           dateOfBirth: dateOfBirth,
           qualification: qualification,
-          salary: calculatedSalary // Send the calculated salary
+          salary: salary,
+          finalSalary: calculatedSalary,
+          pfDeduction: pfDeduction,
+          bankAccountNumber: bankAccountNumber,
+          bankBranch: bankBranch,
+          bankIFSC: bankIFSC
         },
         {
           headers: { Authorization: localStorage.getItem('JWTtoken') }
@@ -101,7 +134,7 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data - line 60', data)
 
-        if (data.success) {
+        if (data.success && data.token) {
           // Clear the form
           setFirstName('')
           setLastName('')
@@ -111,15 +144,20 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
           setSelectedDesignation(null)
           setDateOfBirth(null)
           setSalary('')
-          setPayFrequency('Monthly') // Reset to default
           setPfDeduction('')
-          setTaxId('')
           setBankAccountNumber('')
           setBankBranch('')
 
           if (onEmployeeAdded) {
             onEmployeeAdded()
           }
+        } else {
+          toast.current?.show({
+            severity: 'error',
+            summary: 'Error Occures',
+            detail: `User Mobile / Email ${data.message}`,
+            life: 3000
+          })
         }
       })
       .catch((error) => {
@@ -129,6 +167,7 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
 
   return (
     <div>
+      <Toast ref={toast} />
       <h3>Add Employee</h3>
       <div className="flex gap-3">
         {/* First Name and Last Name */}
@@ -229,17 +268,6 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
         </div>
         <div className="p-inputgroup flex-1">
           <span className="p-inputgroup-addon">
-            <i className="pi pi-calendar"></i>
-          </span>
-          <Dropdown
-            value={payFrequency}
-            onChange={(e) => setPayFrequency(e.value)}
-            options={['Monthly', 'Bi-monthly']}
-            placeholder="Pay Frequency"
-          />
-        </div>
-        <div className="p-inputgroup flex-1">
-          <span className="p-inputgroup-addon">
             <i className="pi pi-credit-card"></i>
           </span>
           <InputText
@@ -252,7 +280,7 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
 
       {/* Calculated Salary Display */}
       <div className="mt-3">
-        <h4>Calculated Salary: ₹{calculatedSalary}</h4>
+        <h4>Calculated Salary: ₹{calculatedSalary} Per Month</h4>
       </div>
 
       {/* Bank Details */}
@@ -276,6 +304,16 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
             value={bankBranch}
             onChange={(e) => setBankBranch(e.target.value)}
             placeholder="Bank Branch"
+          />
+        </div>
+        <div className="p-inputgroup flex-1">
+          <span className="p-inputgroup-addon">
+            <i className="pi pi-home"></i>
+          </span>
+          <InputText
+            value={bankIFSC}
+            onChange={(e) => setBankIFSC(e.target.value)}
+            placeholder="IFSC"
           />
         </div>
       </div>

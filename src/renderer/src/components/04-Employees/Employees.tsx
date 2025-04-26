@@ -152,9 +152,7 @@ const Employees: React.FC = () => {
   }
 
   const rightToolbarTemplate = () => {
-    return (
-      <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
-    )
+    return <Button label="Export" icon="pi pi-upload" severity="danger" onClick={exportCSV} />
   }
 
   const header = (
@@ -173,6 +171,10 @@ const Employees: React.FC = () => {
       </IconField>
     </div>
   )
+
+  const payrollBodyTemplate = () => {
+    return <Button type="button" icon="pi pi-eye" label="View Details"></Button>
+  }
   return (
     <div>
       <div className="primaryNav">
@@ -199,11 +201,10 @@ const Employees: React.FC = () => {
             showGridlines
             paginator
             className="employeeDataTable"
-            scrollHeight="350px"
             rows={10}
             rowsPerPageOptions={[5, 10, 25]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} employees"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Employees"
             globalFilter={globalFilter}
             header={header}
           >
@@ -240,7 +241,19 @@ const Employees: React.FC = () => {
               header="User Name"
               style={{ minWidth: '13rem' }}
             ></Column>
-            <Column field="name" header="Payroll Status" style={{ minWidth: '13rem' }}></Column>
+            <Column field="salary" header="Salary" style={{ minWidth: '13rem' }}></Column>
+            <Column
+              field="bankAccountNumber"
+              header="Account Number"
+              style={{ minWidth: '13rem' }}
+            ></Column>
+            <Column field="bankBranch" header="Branch" style={{ minWidth: '13rem' }}></Column>
+            <Column
+              field="name"
+              header="Payroll Status"
+              style={{ minWidth: '13rem' }}
+              body={payrollBodyTemplate}
+            ></Column>
           </DataTable>
         </div>
       </div>

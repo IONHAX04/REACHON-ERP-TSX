@@ -2,6 +2,7 @@ import { Button } from 'primereact/button'
 import { Calendar } from 'primereact/calendar'
 import { Column } from 'primereact/column'
 import { DataTable } from 'primereact/datatable'
+import { Dialog } from 'primereact/dialog'
 import { Nullable } from 'primereact/ts-helpers'
 import React, { useState } from 'react'
 
@@ -19,6 +20,7 @@ const PayrollStatus: React.FC = () => {
   const [payrollData, setPayrollData] = useState<EmployeePayroll[]>([])
   const [showTable, setShowTable] = useState<boolean>(false)
   const [selectedEmployees, setSelectedEmployees] = useState<EmployeePayroll[]>([])
+  const [showDialog, setShowDialog] = useState<boolean>(false)
 
   const handleGetEmployees = () => {
     const sampleData: EmployeePayroll[] = [
@@ -43,10 +45,21 @@ const PayrollStatus: React.FC = () => {
     setShowTable(true)
   }
 
+  const calculateTotalSalary = () => {
+    return selectedEmployees.reduce((total, emp) => total + emp.salary, 0)
+  }
+
+  const handlePaySalary = () => {
+    const totalSalary = calculateTotalSalary()
+    console.log('Total Salary to be paid:', totalSalary)
+    console.log('Individual Split Up:', selectedEmployees)
+    setShowDialog(false)
+  }
+
   return (
     <div>
-      <div className="flex justify-content-between">
-        <div>
+      <div className="flex justify-content-between align-items-center">
+        <div className="flex align-items-center">
           <Calendar
             value={date}
             onChange={(e) => setDate(e.value as Date)}
@@ -55,7 +68,8 @@ const PayrollStatus: React.FC = () => {
             placeholder="Pick a Date"
             showButtonBar
             showIcon
-            dateFormat="yy-mm-dd"
+            view="month"
+            dateFormat="mm/yy"
           />
           <Button
             label="Get Employees"
@@ -63,12 +77,15 @@ const PayrollStatus: React.FC = () => {
             severity="success"
             onClick={handleGetEmployees}
           />
-        </div>{' '}
+        </div>
+
         {showTable && (
-          <div>
-            <Button label="Pay Salary" severity="success" />
-            <Button label="Export" className="mx-3" severity="danger" />
-          </div>
+          <Button
+            label="Pay Salary"
+            severity="success"
+            disabled={selectedEmployees.length === 0}
+            onClick={() => setShowDialog(true)}
+          />
         )}
       </div>
 
@@ -81,9 +98,7 @@ const PayrollStatus: React.FC = () => {
           className="mt-3"
           selectionMode="multiple"
           selection={selectedEmployees}
-          onSelectionChange={(e: any) => {
-            setSelectedEmployees(e.value as EmployeePayroll[])
-          }}
+          onSelectionChange={(e) => setSelectedEmployees(e.value as EmployeePayroll[])}
         >
           <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />
           <Column field="sno" header="S.No" />
@@ -94,6 +109,34 @@ const PayrollStatus: React.FC = () => {
           <Column field="salary" header="Net Salary" />
         </DataTable>
       )}
+
+      <Dialog
+        header="Salary Payment"
+        visible={showDialog}
+        style={{ width: '50vw' }}
+        onHide={() => setShowDialog(false)}
+        footer={
+          <div>
+            <Button
+              label="Cancel"
+              severity="secondary"
+              onClick={() => setShowDialog(false)}
+              className="mr-2"
+            />
+            <Button label="Pay" severity="success" onClick={handlePaySalary} />
+          </div>
+        }
+      >
+        <div className="mb-3">
+          <h4>Total Salary: ₹{calculateTotalSalary()}</h4>
+        </div>
+
+        <DataTable value={selectedEmployees} showGridlines stripedRows scrollable>
+          <Column field="employeeId" header="Employee ID" />
+          <Column field="employeeName" header="Employee Name" />
+          <Column field="salary" header="Net Salary" />
+        </DataTable>
+      </Dialog>
     </div>
   )
 }

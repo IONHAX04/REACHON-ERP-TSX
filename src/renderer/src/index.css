@@ -52,15 +52,15 @@ p {
 }
 
 .p-stepper .p-stepper-header:has(~ .p-highlight) .p-stepper-separator {
-  background-color: #00052e;
+  background-color: #202d71;
 }
 
 .p-stepper .p-stepper-header.p-highlight .p-stepper-number {
-  background-color: #00052e;
+  background-color: #202d71;
 }
 
 .p-datepicker-trigger.p-button.p-component.p-button-icon-only {
-  background-color: #00052e;
+  background-color: #202d71;
 }
 
 .p-fieldset .p-fieldset-content {

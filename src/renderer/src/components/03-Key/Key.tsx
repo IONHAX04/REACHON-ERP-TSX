@@ -11,7 +11,7 @@ import { MultiSelect } from 'primereact/multiselect'
 import { Sidebar } from 'primereact/sidebar'
 import { Calendar } from 'primereact/calendar'
 import { Toast } from 'primereact/toast'
-
+import { Tag } from 'primereact/tag'
 import './Key.css'
 import UploadExcelSidebar from '../../pages/UploadExcelSidebar/UploadExcelSidebar'
 import axios from 'axios'
@@ -257,8 +257,15 @@ const Key: React.FC = () => {
   const rightToolbarTemplate = () => {
     return (
       <div className="gap-3">
-        <Button className="mx-3" icon="pi pi-refresh" rounded raised onClick={refreshButton} />
-        <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
+        <Button
+          className="mx-3"
+          icon="pi pi-refresh"
+          rounded
+          raised
+          onClick={refreshButton}
+          style={{ background: '#202d71' }}
+        />
+        <Button label="Export" icon="pi pi-upload" severity="danger" onClick={exportCSV} />
       </div>
     )
   }
@@ -354,13 +361,12 @@ const Key: React.FC = () => {
             showGridlines
             paginator
             loading={loading}
-            rows={10}
+            rows={5}
             rowsPerPageOptions={[5, 10, 25, 50]}
             stripedRows
             className="transactionDetailsTable"
             header={header}
             globalFilter={globalFilter}
-            scrollHeight="350px"
           >
             <Column
               field="serialNo"
@@ -387,6 +393,12 @@ const Key: React.FC = () => {
               style={{ minWidth: '12rem', textTransform: 'capitalize' }}
             ></Column>
             <Column
+              field="assignedTo"
+              header="Assigned To"
+              body={(_rowData) => (_rowData.assignedTo ? _rowData.assignedTo : '-')}
+              style={{ minWidth: '10rem', textTransform: 'capitalize' }}
+            ></Column>
+            <Column
               field="purchasedDate"
               header="Purchased Date"
               style={{ minWidth: '10rem', textTransform: 'capitalize' }}
@@ -401,6 +413,25 @@ const Key: React.FC = () => {
               header="Validity Date"
               style={{ minWidth: '10rem', textTransform: 'capitalize' }}
             ></Column>
+            <Column
+              header="Validity Status"
+              body={(_rowData) => {
+                const validityDate = new Date(_rowData.validityDate)
+                const currentDate = new Date()
+
+                const isExpired = validityDate < currentDate
+                return (
+                  <div>
+                    {isExpired ? (
+                      <Tag severity="danger" value="Expired" />
+                    ) : (
+                      <Tag severity="success" value="Live" />
+                    )}
+                  </div>
+                )
+              }}
+              style={{ minWidth: '12rem' }}
+            />
           </DataTable>
         </div>
 

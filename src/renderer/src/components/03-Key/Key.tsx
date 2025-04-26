@@ -53,6 +53,8 @@ interface UserDetails {
 const Key: React.FC = () => {
   const toast = useRef<Toast>(null)
   const [user, setUser] = useState<UserDetails>()
+  const [loading, setLoading] = useState<boolean>(true)
+
   useEffect(() => {
     const storedUser = localStorage.getItem('userDetails')
     console.log('storedUser', storedUser)
@@ -99,6 +101,8 @@ const Key: React.FC = () => {
   ]
 
   const fetchKeydata = () => {
+    setLoading(true)
+
     axios
       .get(import.meta.env.VITE_API_URL + '/routes/mapping', {
         headers: { Authorization: localStorage.getItem('JWTtoken') }
@@ -114,6 +118,9 @@ const Key: React.FC = () => {
       .catch((error) => {
         setCustomers([])
         console.error('Error fetching vendor details:', error)
+      })
+      .finally(() => {
+        setLoading(false)
       })
   }
 
@@ -305,6 +312,7 @@ const Key: React.FC = () => {
             scrollable
             showGridlines
             paginator
+            loading={loading}
             rows={10}
             rowsPerPageOptions={[5, 10, 25, 50]}
             stripedRows

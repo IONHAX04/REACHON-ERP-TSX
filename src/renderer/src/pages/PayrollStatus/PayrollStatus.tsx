@@ -1,3 +1,5 @@
+import decrypt from '@renderer/helper'
+import axios from 'axios'
 import { Button } from 'primereact/button'
 import { Calendar } from 'primereact/calendar'
 import { Column } from 'primereact/column'
@@ -23,26 +25,26 @@ const PayrollStatus: React.FC = () => {
   const [showDialog, setShowDialog] = useState<boolean>(false)
 
   const handleGetEmployees = () => {
-    const sampleData: EmployeePayroll[] = [
-      {
-        sno: 1,
-        employeeId: 'EMP001',
-        employeeName: 'John Doe',
-        basicPay: 50000,
-        pf: 2000,
-        salary: 48000
-      },
-      {
-        sno: 2,
-        employeeId: 'EMP002',
-        employeeName: 'Jane Smith',
-        basicPay: 55000,
-        pf: 2500,
-        salary: 52500
-      }
-    ]
-    setPayrollData(sampleData)
-    setShowTable(true)
+    console.log('date', date)
+    axios
+      .post(
+        import.meta.env.VITE_API_URL + '/Employee/ListUnpaidEmployee',
+        {
+          month: date
+        },
+        {
+          headers: { Authorization: localStorage.getItem('JWTtoken') }
+        }
+      )
+      .then((res) => {
+        const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
+        console.log('list of unpaid employees', data)
+        setPayrollData(data.data)
+        setShowTable(true)
+      })
+      .catch((error) => {
+        console.error('Error fetching vendor details:', error)
+      })
   }
 
   const calculateTotalSalary = () => {
@@ -101,12 +103,12 @@ const PayrollStatus: React.FC = () => {
           onSelectionChange={(e) => setSelectedEmployees(e.value as EmployeePayroll[])}
         >
           <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />
-          <Column field="sno" header="S.No" />
-          <Column field="employeeId" header="Employee ID" />
-          <Column field="employeeName" header="Name" />
-          <Column field="basicPay" header="Basic Pay" />
-          <Column field="pf" header="PF" />
-          <Column field="salary" header="Net Salary" />
+          <Column header="S.No" body={(_rowData, options) => options.rowIndex + 1} />
+          <Column field="refCustId" header="Employee ID" />
+          <Column field="refUserFName" header="Name" />
+          <Column field="salary" header="Basic Pay" />
+          <Column field="pfDeduction" header="PF" />
+          <Column field="finalSalary" header="Net Salary" />
         </DataTable>
       )}
 
@@ -132,9 +134,9 @@ const PayrollStatus: React.FC = () => {
         </div>
 
         <DataTable value={selectedEmployees} showGridlines stripedRows scrollable>
-          <Column field="employeeId" header="Employee ID" />
-          <Column field="employeeName" header="Employee Name" />
-          <Column field="salary" header="Net Salary" />
+          <Column field="refCustId" header="Employee ID" />
+          <Column field="refUserFName" header="Employee Name" />
+          <Column field="finalSalary" header="Net Salary" />
         </DataTable>
       </Dialog>
     </div>

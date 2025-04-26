@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -63,11 +63,117 @@ const routes = [
     name: 'Settings',
     icon: <Cog />
   },
-  // {
-  //   path: "/profile",
-  //   name: "Profile",
-  //   icon: <UserRound />,
-  // },
+  {
+    path: '/login',
+    name: 'Logout',
+    icon: <LogOut />,
+    logout: true
+  }
+]
+
+const adminRoutes = [
+  {
+    path: '/',
+    name: 'Dashboard',
+    icon: <LayoutGrid />
+  },
+  {
+    path: '/booking',
+    name: 'Booking',
+    icon: <Package />
+  },
+  {
+    path: '/mapping',
+    name: 'Mapping',
+    icon: <FileText />
+  },
+  {
+    path: '/tracking',
+    name: 'Tracking',
+    icon: <Truck />
+  },
+  {
+    path: '/finance',
+    name: 'Finance',
+    icon: <ReceiptIndianRupee />
+  },
+  {
+    path: '/report',
+    name: 'Report',
+    icon: <FileCheck />
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    icon: <Cog />
+  },
+  {
+    path: '/login',
+    name: 'Logout',
+    icon: <LogOut />,
+    logout: true
+  }
+]
+
+const financeRoutes = [
+  {
+    path: '/',
+    name: 'Dashboard',
+    icon: <LayoutGrid />
+  },
+  {
+    path: '/finance',
+    name: 'Finance',
+    icon: <ReceiptIndianRupee />
+  },
+  {
+    path: '/report',
+    name: 'Report',
+    icon: <FileCheck />
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    icon: <Cog />
+  },
+  {
+    path: '/login',
+    name: 'Logout',
+    icon: <LogOut />,
+    logout: true
+  }
+]
+
+const employeeRoutes = [
+  {
+    path: '/',
+    name: 'Dashboard',
+    icon: <LayoutGrid />
+  },
+  {
+    path: '/booking',
+    name: 'Booking',
+    icon: <Package />
+  },
+  {
+    path: '/mapping',
+    name: 'Mapping',
+    icon: <FileText />
+  },
+  {
+    path: '/tracking',
+    name: 'Tracking',
+    icon: <Truck />
+  },
+  {
+    path: '/login',
+    name: 'Logout',
+    icon: <LogOut />,
+    logout: true
+  }
+]
+
+const defaultRoutes = [
   {
     path: '/login',
     name: 'Logout',
@@ -79,6 +185,39 @@ const routes = [
 const Header: React.FC<HeaderProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false)
   console.log('isOpen', isOpen)
+  const [selectedRoutes, setSelectedRoutes] = useState(routes)
+
+  useEffect(() => {
+    const userDetailsString = localStorage.getItem('userDetails')
+    if (userDetailsString) {
+      try {
+        const userDetails = JSON.parse(userDetailsString)
+        const userType = userDetails.userTypeId
+        console.log('userType', userDetails.userTypeId)
+
+        switch (userType) {
+          case 1:
+            setSelectedRoutes(routes)
+            break
+          case 2:
+            setSelectedRoutes(adminRoutes)
+            break
+          case 3:
+            setSelectedRoutes(financeRoutes)
+            break
+          case 4:
+            setSelectedRoutes(employeeRoutes)
+            break
+          default:
+            setSelectedRoutes(defaultRoutes)
+        }
+      } catch (error) {
+        console.error('Failed to parse userDetails:', error)
+        setSelectedRoutes(routes)
+      }
+    }
+  }, [])
+
   const navigate = useNavigate()
 
   const toggle = () => setIsOpen(!isOpen)
@@ -142,7 +281,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
           </div>
 
           <section className="routes">
-            {routes.map((route) => (
+            {selectedRoutes.map((route) => (
               <NavLink
                 to={route.path}
                 key={route.name}

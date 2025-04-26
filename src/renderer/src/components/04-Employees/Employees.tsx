@@ -238,7 +238,7 @@ const Employees: React.FC = () => {
               header="User Name"
               style={{ minWidth: '13rem' }}
             ></Column>
-            {/* <Column field="name" header="Payroll Status" style={{ minWidth: '13rem' }}></Column> */}
+            <Column field="name" header="Payroll Status" style={{ minWidth: '13rem' }}></Column>
           </DataTable>
         </div>
       </div>

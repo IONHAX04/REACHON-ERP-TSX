@@ -25,6 +25,13 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
   const [qualification, setQualification] = useState('')
   const [selectedDesignation, setSelectedDesignation] = useState<EmployeeOptionsProps | null>(null)
   const [dateOfBirth, setDateOfBirth] = useState<Nullable<Date>>(null)
+  // Payroll Fields
+  const [salary, setSalary] = useState('')
+  const [payFrequency, setPayFrequency] = useState<string>('Monthly') // Default to Monthly
+  const [pfDeduction, setPfDeduction] = useState('')
+  const [taxId, setTaxId] = useState('')
+  const [bankAccountNumber, setBankAccountNumber] = useState('')
+  const [bankBranch, setBankBranch] = useState('')
 
   const [designations, setDesignations] = useState<EmployeeOptionsProps[]>([])
 
@@ -167,6 +174,86 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
             value={qualification}
             onChange={(e) => setQualification(e.target.value)}
             placeholder="Qualification"
+          />
+        </div>
+        <div className="p-inputgroup flex-1">
+          <span className="p-inputgroup-addon">
+            <i className="pi pi-indian-rupee"></i>
+          </span>
+          <InputText
+            value={qualification}
+            onChange={(e) => setQualification(e.target.value)}
+            placeholder="Salary"
+          />
+        </div>
+      </div>
+
+      <h3>Bank Details</h3>
+
+      <div className="flex gap-3 mt-3">
+        <div className="p-inputgroup flex-1">
+          <span className="p-inputgroup-addon">
+            <i className="pi pi-indian-rupee"></i>
+          </span>
+          <InputText
+            value={salary}
+            onChange={(e) => setSalary(e.target.value)}
+            placeholder="Base Salary"
+          />
+        </div>
+        <div className="p-inputgroup flex-1">
+          <span className="p-inputgroup-addon">
+            <i className="pi pi-calendar"></i>
+          </span>
+          <Dropdown
+            value={payFrequency}
+            onChange={(e) => setPayFrequency(e.value)}
+            options={['Monthly', 'Bi-weekly', 'Hourly']}
+            placeholder="Pay Frequency"
+          />
+        </div>
+      </div>
+      <div className="flex gap-3 mt-3">
+        <div className="p-inputgroup flex-1">
+          <span className="p-inputgroup-addon">
+            <i className="pi pi-credit-card"></i>
+          </span>
+          <InputText
+            value={pfDeduction}
+            onChange={(e) => setPfDeduction(e.target.value)}
+            placeholder="Provident Fund Deduction (%)"
+          />
+        </div>
+        <div className="p-inputgroup flex-1">
+          <span className="p-inputgroup-addon">
+            <i className="pi pi-id-card"></i>
+          </span>
+          <InputText
+            value={taxId}
+            onChange={(e) => setTaxId(e.target.value)}
+            placeholder="Tax ID (PAN)"
+          />
+        </div>
+      </div>
+      <div className="flex gap-3 mt-3">
+        <div className="p-inputgroup flex-1">
+          <span className="p-inputgroup-addon">
+            <i className="pi pi-credit-card"></i>
+          </span>
+          <InputText
+            value={bankAccountNumber}
+            onChange={(e) => setBankAccountNumber(e.target.value)}
+            placeholder="Bank Account Number"
+          />
+        </div>
+        <div className="p-inputgroup flex-1">
+          <span className="p-inputgroup-addon">
+            <i className="pi pi-home"></i>
+          </span>
+          <InputText
+            value={bankBranch}
+            onChange={(e) => setBankBranch(e.target.value)}
+            placeholder="Bank Branch"
           />
         </div>
       </div>

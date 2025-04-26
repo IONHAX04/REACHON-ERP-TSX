@@ -168,9 +168,45 @@ const Key: React.FC = () => {
   }
 
   const exportCSV = () => {
-    if (dt.current) {
-      dt.current.exportCSV()
+    if (!filteredCustomers || filteredCustomers.length === 0) {
+      toast.current?.show({
+        severity: 'warn',
+        summary: 'No Data',
+        detail: 'There is no data to export.',
+        life: 3000
+      })
+      return
     }
+
+    const exportData = filteredCustomers.map((item, index) => ({
+      'S.No': index + 1,
+      Leaf: item.vendorLeaf,
+      Partners: item.vendor,
+      Status: item.refStatus,
+      'Purchased Date': item.purchasedDate,
+      Validity: item.validity,
+      'Validity Date': item.validityDate
+    }))
+
+    const csvHeader = Object.keys(exportData[0]).join(',') + '\n'
+    const csvRows = exportData
+      .map((row) =>
+        Object.values(row)
+          .map((value) => `"${value}"`)
+          .join(',')
+      )
+      .join('\n')
+
+    const csvContent = csvHeader + csvRows
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', 'transaction_mapping.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   const rightToolbarTemplate = () => {
@@ -278,11 +314,13 @@ const Key: React.FC = () => {
             scrollHeight="350px"
           >
             <Column
-              field="id"
+              field="serialNo"
               header="S.No"
-              style={{ minWidth: '3rem' }}
               body={(_rowData, { rowIndex }) => rowIndex + 1}
-            ></Column>
+              exportField="S.No"
+              style={{ minWidth: '3rem' }}
+            />
+
             <Column
               field="vendorLeaf"
               header="Leaf"

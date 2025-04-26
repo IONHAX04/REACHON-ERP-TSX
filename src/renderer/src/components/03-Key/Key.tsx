@@ -124,10 +124,48 @@ const Key: React.FC = () => {
       })
   }
 
-  useEffect(() => {
+  const refreshButton = () => {
     getPartners()
     fetchKeydata()
-  }, [visibleRight])
+  }
+
+  const showNetworkStatus = (isOnline: boolean) => {
+    if (isOnline) {
+      getPartners()
+      fetchKeydata()
+    } else {
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Network Error',
+        detail: 'No network found. Please check your internet connection!',
+        life: 4000
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (!navigator.onLine) {
+      showNetworkStatus(false)
+    } else {
+      showNetworkStatus(true)
+    }
+
+    const handleOnline = () => {
+      showNetworkStatus(true)
+    }
+
+    const handleOffline = () => {
+      showNetworkStatus(false)
+    }
+
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   useEffect(() => {
     let filtered = [...customers]
@@ -218,7 +256,10 @@ const Key: React.FC = () => {
 
   const rightToolbarTemplate = () => {
     return (
-      <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
+      <div className="gap-3">
+        <Button className="mx-3" icon="pi pi-refresh" rounded raised onClick={refreshButton} />
+        <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
+      </div>
     )
   }
 

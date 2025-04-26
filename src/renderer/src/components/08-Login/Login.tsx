@@ -8,7 +8,7 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
-// import logoImg from '../../assets/Logo/logoImg.png'
+// import logoImg from '../../assets/imageLogo.png'
 import logoImg from '../../assets/Logo/LOGO.png'
 
 import decrypt from '@renderer/helper'
@@ -29,6 +29,16 @@ const Login: React.FC = () => {
         severity: 'error',
         summary: 'Missing Fields',
         detail: 'Please enter mobile or password.',
+        life: 3000
+      })
+      return
+    }
+
+    if (!navigator.onLine) {
+      toast.current?.show({
+        severity: 'warn',
+        summary: 'No Internet Connection',
+        detail: 'Please check your network and try again.',
         life: 3000
       })
       return
@@ -81,6 +91,7 @@ const Login: React.FC = () => {
       })
     }
   }
+
   return (
     <div className="h-screen loginScreenBg">
       <Toast ref={toast} />

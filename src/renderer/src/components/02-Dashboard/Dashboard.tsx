@@ -1,12 +1,14 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { IndianRupee, ShoppingCart, TriangleAlert, Undo2 } from 'lucide-react'
 import { Divider } from 'primereact/divider'
 
 import profile from '../../assets/dashboard/profile.svg'
 import coverImg from '../../assets/dashboard/banner.png'
+// import coverImg from '../../assets/zadpro.jpg'
 
 import './Dashboard.css'
 import { useEffect, useState } from 'react'
+import { Toast } from 'primereact/toast'
 
 interface UserDetails {
   refUserId: number
@@ -22,7 +24,19 @@ interface UserDetails {
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<UserDetails>()
+  const toast = useRef<Toast>(null)
 
+  const checkNetwork = () => {
+    if (!navigator.onLine) {
+      toast.current?.show({
+        severity: 'warn',
+        summary: 'No Internet Connection',
+        detail: 'Please check your network and try again.',
+        life: 3000
+      })
+      return
+    }
+  }
   useEffect(() => {
     const storedUser = localStorage.getItem('userDetails')
     console.log('storedUser', storedUser)
@@ -30,13 +44,14 @@ const Dashboard: React.FC = () => {
     if (storedUser) {
       setUser(JSON.parse(storedUser))
     }
+    checkNetwork()
   }, [])
 
   const cardData = [
     {
       id: 1,
       title: 'Orders',
-      count: '4 new',
+      count: '4 ',
       description: 'Orders count',
       icon: <ShoppingCart size={40} />
     },
@@ -64,6 +79,8 @@ const Dashboard: React.FC = () => {
   ]
   return (
     <div>
+      <Toast ref={toast} />
+
       <div>
         <div className="primaryNav">
           <p>Dashboard</p>
@@ -89,7 +106,7 @@ const Dashboard: React.FC = () => {
                       </p>
                       <p className="useremail">{user?.refCustId}</p>
                     </div>
-                    <p className="empPosition">{user?.userTypeName}</p>
+                    {/* <p className="empPosition">{user?.userTypeName}</p> */}
                   </div>
                   <div className="userDetTwo">
                     <p>
@@ -120,7 +137,7 @@ const Dashboard: React.FC = () => {
                   <h3>{card.title}</h3>
                   <p>{card.description}</p>
                   <p>
-                    <span>{card.count}</span> since last week
+                    <span className="text-2xl font-bold">{card.count}</span> since last week
                   </p>
                 </div>
                 <div className="cardIcon">{card.icon}</div>

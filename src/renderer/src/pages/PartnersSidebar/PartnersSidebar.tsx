@@ -33,13 +33,13 @@ const PartnersSidebar: React.FC = () => {
       })
   }
 
-  const handleEdit = (partner) => {
-    setPartners(partner.partnersName)
-    setContactDetails(partner.phoneNumber)
-    setValidity(partner.validity)
-    setEditingPartner(partner)
-    setShowInputSection(true)
-  }
+  // const handleEdit = (partner) => {
+  //   setPartners(partner.partnersName)
+  //   setContactDetails(partner.phoneNumber)
+  //   setValidity(partner.validity)
+  //   setEditingPartner(partner)
+  //   setShowInputSection(true)
+  // }
 
   const addOrUpdatePartner = () => {
     if (partners.trim()) {
@@ -106,16 +106,16 @@ const PartnersSidebar: React.FC = () => {
     </>
   )
 
-  const actionTemplate = (rowData) => (
-    <Button
-      rounded
-      outlined
-      text
-      severity="info"
-      icon="pi pi-pencil"
-      onClick={() => handleEdit(rowData)}
-    />
-  )
+  // const _actionTemplate = (rowData) => (
+  //   <Button
+  //     rounded
+  //     outlined
+  //     text
+  //     severity="info"
+  //     icon="pi pi-pencil"
+  //     onClick={() => handleEdit(rowData)}
+  //   />
+  // )
   return (
     <div>
       <div>
@@ -125,7 +125,7 @@ const PartnersSidebar: React.FC = () => {
           <Column field="partnersName" header="Partners"></Column>
           <Column field="phoneNumber" header="Contact"></Column>
           <Column field="validity" header="Validity"></Column>
-          <Column field="edit" header="Actions" body={actionTemplate}></Column>
+          {/* <Column field="edit" header="Actions" body={actionTemplate}></Column> */}
         </DataTable>
       </div>
     </div>

@@ -201,6 +201,7 @@ const PriceSidebar: React.FC = () => {
             <Divider />
             <div className="flex flex-column gap-2">
               <div className="flex gap-2 align-items-center">
+                {/* Min Weight */}
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
                     <Minimize2 size={16} />
@@ -208,9 +209,20 @@ const PriceSidebar: React.FC = () => {
                   <InputText
                     placeholder="Min. Weight"
                     value={minWeight}
-                    onChange={(e) => setMinWeight(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^\d*\.?\d{0,3}$/.test(value)) {
+                        setMinWeight(value)
+                      }
+                    }}
+                    onBlur={() => {
+                      const num = parseFloat(minWeight)
+                      if (!isNaN(num)) setMinWeight(num.toFixed(3))
+                    }}
                   />
                 </div>
+
+                {/* Max Weight */}
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
                     <Maximize2 size={16} />
@@ -218,9 +230,20 @@ const PriceSidebar: React.FC = () => {
                   <InputText
                     placeholder="Max. Weight"
                     value={maxWeight}
-                    onChange={(e) => setMaxWeight(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^\d*\.?\d{0,3}$/.test(value)) {
+                        setMaxWeight(value)
+                      }
+                    }}
+                    onBlur={() => {
+                      const num = parseFloat(maxWeight)
+                      if (!isNaN(num)) setMaxWeight(num.toFixed(3))
+                    }}
                   />
                 </div>
+
+                {/* Price */}
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
                     <IndianRupee size={16} />
@@ -228,11 +251,19 @@ const PriceSidebar: React.FC = () => {
                   <InputText
                     placeholder="Price"
                     value={price}
-                    onChange={(e) => setPrice(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^\d*$/.test(value)) {
+                        setPrice(value)
+                      }
+                    }}
                   />
                 </div>
+
                 <InputSwitch checked={checked} onChange={(e) => setChecked(e.value)} />
               </div>
+
+              {/* Length, Breadth, Height */}
               <div className="flex gap-2">
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
@@ -241,10 +272,20 @@ const PriceSidebar: React.FC = () => {
                   <InputText
                     placeholder="Length"
                     value={length}
-                    onChange={(e) => setLength(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^\d*\.?\d?$/.test(value)) {
+                        setLength(value)
+                      }
+                    }}
+                    onBlur={() => {
+                      const num = parseFloat(length)
+                      if (!isNaN(num)) setLength(num.toFixed(1))
+                    }}
                     disabled={!checked}
                   />
                 </div>
+
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
                     <Ruler size={16} />
@@ -252,10 +293,20 @@ const PriceSidebar: React.FC = () => {
                   <InputText
                     placeholder="Breadth"
                     value={breadth}
-                    onChange={(e) => setBreadth(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^\d*\.?\d?$/.test(value)) {
+                        setBreadth(value)
+                      }
+                    }}
+                    onBlur={() => {
+                      const num = parseFloat(breadth)
+                      if (!isNaN(num)) setBreadth(num.toFixed(1))
+                    }}
                     disabled={!checked}
                   />
                 </div>
+
                 <div className="p-inputgroup flex-1">
                   <span className="p-inputgroup-addon">
                     <ArrowUpFromLine size={16} />
@@ -263,13 +314,24 @@ const PriceSidebar: React.FC = () => {
                   <InputText
                     placeholder="Height"
                     value={height}
-                    onChange={(e) => setHeight(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^\d*\.?\d?$/.test(value)) {
+                        setHeight(value)
+                      }
+                    }}
+                    onBlur={() => {
+                      const num = parseFloat(height)
+                      if (!isNaN(num)) setHeight(num.toFixed(1))
+                    }}
                     disabled={!checked}
                   />
                 </div>
+
                 <Button label="Add" severity="success" onClick={addProduct} />
               </div>
             </div>
+
             <Divider />
           </>
         )}

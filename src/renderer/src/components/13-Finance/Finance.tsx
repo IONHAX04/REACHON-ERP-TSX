@@ -5,8 +5,8 @@ import { Column } from 'primereact/column'
 import { Button } from 'primereact/button'
 import { Dialog } from 'primereact/dialog'
 import { InputText } from 'primereact/inputtext'
-// import axios from 'axios'
-// import decrypt from '@renderer/helper'
+import axios from 'axios'
+import decrypt from '@renderer/helper'
 
 interface Product {
   id: string
@@ -30,32 +30,43 @@ interface UserDetails {
   userTypeName: string
 }
 
-interface FinanceDetailsProps {
+// interface FinanceDetailsProps {
+//   id: string
+//   refCustomerName: string
+//   refBalanceAmount: number
+//   payAmount?: string
+//   outstanding?: number
+//   balance?: number
+//   createdAt: string
+//   createdBy: string
+//   deletedAt: string
+//   deletedBy: string
+//   refAddress: string
+//   refCode: string
+//   refCustId: string
+//   refCustomerId: number
+//   refCustomerType: boolean
+//   refDummy4: string
+//   refDummy5: string
+//   refNotes: string
+//   refPhone: string
+//   updatedAt: string
+//   updatedBy: string
+// }
+
+interface staticData {
   id: string
-  refCustomerName: string
-  refBalanceAmount: number
-  payAmount?: string
-  outstanding?: number
-  balance?: number
-  createdAt: string
-  createdBy: string
-  deletedAt: string
-  deletedBy: string
-  refAddress: string
-  refCode: string
-  refCustId: string
-  refCustomerId: number
-  refCustomerType: boolean
-  refDummy4: string
-  refDummy5: string
-  refNotes: string
-  refPhone: string
-  updatedAt: string
-  updatedBy: string
+  code: string
+  name: string
+  invoice: string
+  outstanding: number
+  payAmount: string
+  balance: number
 }
+;[]
 
 const Finance: React.FC = () => {
-  const [products, setProducts] = useState<FinanceDetailsProps[]>([])
+  const [products, setProducts] = useState<staticData[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [visible, setVisible] = useState(false)
 
@@ -70,24 +81,24 @@ const Finance: React.FC = () => {
     }
   }, [])
 
-  // const getFinanceDetails = () => {
-  //   axios
-  //     .get(import.meta.env.VITE_API_URL + '/route/listFinance', {
-  //       headers: { Authorization: localStorage.getItem('JWTtoken') }
-  //     })
-  //     .then((res) => {
-  //       const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-  //       console.log('data line 33 ======== ', data)
-  //       setProducts(data.data)
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error fetching vendor details:', error)
-  //     })
-  // }
+  const getFinanceDetails = () => {
+    axios
+      .get(import.meta.env.VITE_API_URL + '/route/listFinance', {
+        headers: { Authorization: localStorage.getItem('JWTtoken') }
+      })
+      .then((res) => {
+        const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
+        console.log('data line 33 ======== ', data)
+        setProducts(data.data)
+      })
+      .catch((error) => {
+        console.error('Error fetching vendor details:', error)
+      })
+  }
 
-  // useEffect(() => {
-  //   getFinanceDetails()
-  // }, [])
+  useEffect(() => {
+    getFinanceDetails()
+  }, [])
   useEffect(() => {
     const storedData = localStorage.getItem('balanceStaticData')
     if (storedData) {
@@ -184,7 +195,7 @@ const Finance: React.FC = () => {
       return product
     })
 
-    setProducts(updatedProducts as FinanceDetailsProps[])
+    setProducts(updatedProducts as staticData[])
     localStorage.setItem('balanceStaticData', JSON.stringify(updatedProducts))
   }
 

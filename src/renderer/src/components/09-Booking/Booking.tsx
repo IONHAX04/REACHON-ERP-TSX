@@ -1,4 +1,14 @@
+import { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer'
 import React from 'react'
+import PopRegular from '../../assets/Fonts/Poppins-Regular.ttf'
+import PopBold from '../../assets/Fonts/Poppins-Bold.ttf'
+import PopBoldItalic from '../../assets/Fonts/Poppins-BoldItalic.ttf'
+import PopSemiboldItalic from '../../assets/Fonts/Poppins-SemiBoldItalic.ttf'
+import logo from '../../assets/Logo/LOGO.png'
+import cut from '../../assets/PDFTemplate/Cut.png'
+
+import { City, State } from 'country-state-city'
+
 import { useEffect, useRef, useState } from 'react'
 import { Dropdown } from 'primereact/dropdown'
 import { Divider } from 'primereact/divider'
@@ -13,7 +23,6 @@ import decrypt from '../../helper'
 import { Toast } from 'primereact/toast'
 // import { DataTable } from 'primereact/datatable'
 // import { Column } from 'primereact/column'
-import TestingPDF from '../11-TestingPDF/TestingPDF'
 import { pdf } from '@react-pdf/renderer'
 
 import {
@@ -173,8 +182,21 @@ interface VendorLeafProps {
 }
 
 const Booking: React.FC = () => {
+  Font.register({ family: 'PopRegular', src: PopRegular })
+  Font.register({ family: 'PopBoldItalic', src: PopBoldItalic })
+  Font.register({ family: 'PopBold', src: PopBold })
+  Font.register({ family: 'PopSemiboldItalic', src: PopSemiboldItalic })
+
   const toast = useRef<Toast>(null)
   const [user, setUser] = useState<UserDetails>()
+
+  const [states, setStates] = useState([])
+  const [districts, setDistricts]: any = useState([])
+
+  useEffect(() => {
+    const countryStates: any = State.getStatesOfCountry('IN')
+    setStates(countryStates)
+  }, [])
 
   useEffect(() => {
     const storedUser = localStorage.getItem('userDetails')
@@ -306,7 +328,7 @@ const Booking: React.FC = () => {
       { label: 'Declared Value', value: declaredValue },
       { label: 'No. of Pieces', value: numberOfPieces },
       { label: 'Actual Weight', value: actualWeight },
-      { label: 'Dimension', value: checked },
+      // { label: 'Dimension', value: checked },
       { label: 'Net Amount', value: netAmoutn },
       { label: 'Pickup Charge', value: pickupCharge },
       { label: 'Count', value: count },
@@ -327,102 +349,105 @@ const Booking: React.FC = () => {
       return
     }
 
-    axios
-      .post(
-        'https://dtdcapi.shipsy.io/api/customer/integration/consignment/softdata',
-        {
-          consignments: [
-            {
-              customer_code: 'EO1727',
-              service_type_id: 'B2C PRIORITY',
-              load_type: parcelType?.name,
-              description: 'test',
-              dimension_unit: 'cm',
-              length: length,
-              width: weight,
-              height: height,
-              weight_unit: 'kg',
-              weight: actualWeight,
-              declared_value: netAmoutn,
-              num_pieces: String(count),
-              origin_details: {
-                name: consignersName,
-                phone: consigerPhone,
-                alternate_phone: consigerPhone,
-                address_line_1: consignerAddress,
-                address_line_2: consignerAddress,
-                pincode: consignerPincode,
-                city: consignorCity,
-                state: consignorState
-              },
-              destination_details: {
-                name: consigneName,
-                phone: consigneePhone,
-                alternate_phone: consigneePhone,
-                address_line_1: consignerAddress,
-                address_line_2: '',
-                pincode: consigneePincode,
-                city: consigneeCity,
-                state: consigneeState
-              },
-              return_details: {
-                address_line_1: consignerAddress,
-                address_line_2: consignerAddress,
-                city_name: consignorCity,
-                name: consignersName,
-                phone: consigerPhone,
-                pincode: consignerPincode,
-                state_name: consignorState,
-                email: consigerEmail,
-                alternate_phone: consigerPhone
-              },
-              customer_reference_number: selectedLeaf?.vendorLeaf,
-              cod_collection_mode: '1',
-              cod_amount: pickupCharge,
-              commodity_id: '99',
-              eway_bill: '',
-              is_risk_surcharge_applicable: false,
-              invoice_number: 'AB001',
-              invoice_date: formattedDate,
-              reference_number: ''
+    if (partners?.partnersName === 'DTDC') {
+      axios
+        .post(
+          'https://dtdcapi.shipsy.io/api/customer/integration/consignment/softdata',
+          {
+            consignments: [
+              {
+                customer_code: 'EO1727',
+                service_type_id: 'B2C PRIORITY',
+                load_type: parcelType?.name,
+                description: 'test',
+                dimension_unit: 'cm',
+                length: length,
+                width: weight,
+                height: height,
+                weight_unit: 'kg',
+                weight: actualWeight,
+                declared_value: netAmoutn,
+                num_pieces: String(count),
+                origin_details: {
+                  name: consignersName,
+                  phone: consigerPhone,
+                  alternate_phone: consigerPhone,
+                  address_line_1: consignerAddress,
+                  address_line_2: consignerAddress,
+                  pincode: consignerPincode,
+                  city: consignorCity,
+                  state: consignorState
+                },
+                destination_details: {
+                  name: consigneName,
+                  phone: consigneePhone,
+                  alternate_phone: consigneePhone,
+                  address_line_1: consignerAddress,
+                  address_line_2: '',
+                  pincode: consigneePincode,
+                  city: consigneeCity,
+                  state: consigneeState
+                },
+                return_details: {
+                  address_line_1: consignerAddress,
+                  address_line_2: consignerAddress,
+                  city_name: consignorCity,
+                  name: consignersName,
+                  phone: consigerPhone,
+                  pincode: consignerPincode,
+                  state_name: consignorState,
+                  email: consigerEmail,
+                  alternate_phone: consigerPhone
+                },
+                customer_reference_number: selectedLeaf?.vendorLeaf,
+                cod_collection_mode: '1',
+                cod_amount: pickupCharge,
+                commodity_id: '99',
+                eway_bill: '',
+                is_risk_surcharge_applicable: false,
+                invoice_number: 'AB001',
+                invoice_date: formattedDate,
+                reference_number: ''
+              }
+            ]
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'api-key': '5dd8e4d35166672758bd1ee8953025'
             }
-          ]
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'api-key': '5dd8e4d35166672758bd1ee8953025'
           }
-        }
-      )
-      .then((res) => {
-        if (res.data.status === 'OK') {
-          const result = res.data.data[0]
-          if (!result.success) {
-            toast.current?.show({
-              severity: 'error',
-              summary: 'Error',
-              detail: result.message,
-              life: 3000
-            })
-          } else {
-            toast.current?.show({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Consignment created successfully',
-              life: 3000
-            })
+        )
+        .then((res) => {
+          if (res.data.status === 'OK') {
+            const result = res.data.data[0]
+            if (!result.success) {
+              toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: result.message,
+                life: 3000
+              })
+            } else {
+              toast.current?.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Consignment created successfully',
+                life: 3000
+              })
+            }
           }
-        }
-      })
-      .catch((err) => {
-        toast.current?.show({
-          severity: 'error',
-          summary: 'Request Failed',
-          detail: err.message || 'Something went wrong',
-          life: 3000
         })
-      })
+        .catch((err) => {
+          toast.current?.show({
+            severity: 'error',
+            summary: 'Request Failed',
+            detail: err.message || 'Something went wrong',
+            life: 3000
+          })
+        })
+    } else if (partners?.partnersName === 'Delhivery') {
+    }
 
     console.log('selectedCustomerDetails', selectedCustomerDetails)
     axios
@@ -477,7 +502,7 @@ const Booking: React.FC = () => {
             summary: 'Order Placed',
             detail: `Order Placed Successfully`
           })
-          window.open('/testingPDF')
+          handlePdfDownload()
         } else {
           toast.current?.show({
             severity: 'warn',
@@ -538,7 +563,1666 @@ const Booking: React.FC = () => {
   }, [actualWeight])
 
   const handlePdfDownload = async () => {
-    const doc = <TestingPDF />
+    const date = new Date()
+    const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' }
+    const formattedDate = date.toLocaleDateString('en-GB', options).replace(',', '')
+    const doc = (
+      <Document>
+        <Page size="A4">
+          <View
+            style={{
+              padding: 20,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%'
+            }}
+          >
+            {/* Row-1 */}
+            <View
+              style={{
+                width: '100%',
+                height: '80px',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                border: '1px solid #000'
+              }}
+            >
+              <View
+                style={{
+                  width: '40%',
+                  height: '80px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  borderRight: '1px solid #000',
+                  padding: '10px'
+                }}
+              >
+                <Image src={logo} style={{ width: '45%', marginBottom: '10px' }} />
+                <View
+                  style={{
+                    fontSize: '7px',
+                    fontFamily: 'PopBold',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Text>Reachon Express Private Limited</Text>
+                  <Text>No 118 Gandhiji Road, Erode HO,</Text>
+                  <Text>Erode - 638001 (Near Railway Station)</Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: '30%',
+                  height: '80px',
+                  borderRight: '1px solid #000'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    height: '40px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    borderBottom: '1px solid #000',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Origin:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>Erode</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    height: '40px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Product:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>Ground Express</Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: '30%',
+                  height: '80px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    height: '26px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    borderBottom: '1px solid #000',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Dest:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigneeCity}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    height: '26px',
+                    display: 'flex',
+                    borderBottom: '1px solid #000',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Type:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{parcelType?.name}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    height: '28px',
+                    display: 'flex',
+                    borderBottom: '1px solid #000',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Date:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{formattedDate}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Row-2 */}
+            <View
+              style={{
+                width: '100%',
+                height: '80px',
+                display: 'flex',
+                flexDirection: 'row',
+                borderRight: '1px solid #000',
+                borderLeft: '1px solid #000',
+                borderBottom: '1px solid #000'
+              }}
+            >
+              <View
+                style={{
+                  width: '50%',
+                  height: '80px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  borderRight: '1px solid #000',
+                  padding: '5px',
+                  fontSize: '8px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Consignor's Name:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consignersName}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Consignor's Address:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>
+                    {consignerAddress + ', ' + consignorCity + ', ' + consignorState}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>GSTIN No:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigerGstNumber}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Phone No:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigerPhone}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Email:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigerEmail}</Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: '50%',
+                  height: '80px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  // borderRight: "1px solid #000",
+                  padding: '5px',
+                  fontSize: '8px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Customer Ref No:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigeeRefNumber}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Consignee's Name:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigneName}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Consignee's Address:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>
+                    {consigeeAddress + ', ' + consigneeCity + ', ' + consigneeState}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>GSTIN No:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigneeGst}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Phone No:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigneePhone}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Email:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigneeEmail}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Row-3 */}
+            <View
+              style={{
+                width: '100%',
+                height: '120px',
+                display: 'flex',
+                flexDirection: 'row',
+                borderRight: '1px solid #000',
+                borderLeft: '1px solid #000'
+              }}
+            >
+              <View
+                style={{
+                  width: '25%',
+                  height: '120px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRight: '1px solid #000',
+                    borderBottom: '1px solid #000',
+                    padding: '5px',
+                    fontSize: '8px'
+                  }}
+                >
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text style={{ fontFamily: 'PopBold' }}>Content Specification:</Text>
+                    <Text>{contentSpecifications}</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text style={{ fontFamily: 'PopBold' }}>Paper Enclosed:</Text>
+                    <Text>{paperEnclosed}</Text>
+                  </View>
+                </View>
+
+                <View
+                  style={{
+                    width: '100%',
+                    height: '80px',
+                    borderRight: '1px solid #000',
+                    borderBottom: '1px solid #000',
+                    fontSize: '5px',
+                    fontFamily: 'PopRegular',
+                    textAlign: 'justify',
+                    padding: '5px 5px'
+                  }}
+                >
+                  <Text style={{ textAlign: 'justify' }}>
+                    I/We declare that this consignment does not contain personal mail, cash,
+                    jewellery, contraband, illegal drugs, any prohibited items and commodities which
+                    can cause safety hazards while transporting
+                  </Text>
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      marginTop: '10px',
+                      fontFamily: 'PopBold',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    Sende's Signature & Seal
+                  </Text>
+                  <Text style={{ textAlign: 'justify', marginTop: '2px' }}>
+                    I have read and understood terms & conditions ofcarriage mentioned on website
+                    www.dtdc.in, and I agree to the Same.
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: '25%',
+                  height: '120px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRight: '1px solid #000',
+                    borderBottom: '1px solid #000',
+                    fontSize: '8px'
+                  }}
+                >
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      height: '13px',
+                      borderBottom: '1px solid #000',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text>Declared Value:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>{declaredValue}</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      height: '13px',
+                      borderBottom: '1px solid #000',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text>No Of Pieces:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>{numberOfPieces}</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      height: '14px',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text>Actual Weight:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>{actualWeight} Kgs</Text>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    height: '26px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRight: '1px solid #000',
+                    borderBottom: '1px solid #000',
+                    fontSize: '8px'
+                  }}
+                >
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      height: '13px',
+                      borderBottom: '1px solid #000',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text>Dim:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>
+                      {height} cm X {weight} cm X {breadth} cm
+                    </Text>
+                  </View>
+
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      height: '13px',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text>Charged weight:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>{chargedWeight} Kgs</Text>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    height: '54px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRight: '1px solid #000',
+                    borderBottom: '1px solid #000',
+                    justifyContent: 'flex-start',
+                    alignItems: 'center',
+                    fontSize: 5
+                  }}
+                >
+                  <View
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text style={{ fontFamily: 'PopBold' }}>Name:</Text>
+                    <Text>Reachon Express Private Limited</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: 3,
+                      // justifyContent: "center",
+                      alignItems: 'flex-start'
+                      // gap: "3px",
+                    }}
+                  >
+                    <Text style={{ width: '18%', fontFamily: 'PopBold' }}>Address:</Text>
+                    <Text style={{ width: '75%' }}>
+                      No 118 Gandhiji Road, Erode HO, Erode - 638001 (Near Railway Station){' '}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text style={{ fontFamily: 'PopBold' }}>Phone:</Text>
+                    <Text>+91 94438 94875</Text>
+                  </View>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: '50%',
+                  height: '120px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    height: '66px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderBottom: '1px solid #000',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: '5px',
+                    fontSize: 8
+                  }}
+                >
+                  <Text style={{ marginTop: '1px', height: '20px' }}>Place Your Barcode Here</Text>
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '8px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      // alignItems: "ceter",
+                      flexDirection: 'row',
+                      gap: '3px',
+                      paddingTop: '5px'
+                    }}
+                  >
+                    <Text style={{ marginTop: '1px' }}>AWB No:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>{selectedLeaf?.vendorLeaf}</Text>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    height: '66px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    borderBottom: '1px solid #000',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    fontSize: '8px'
+                  }}
+                >
+                  <View
+                    style={{
+                      width: '50%',
+                      height: '60px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      borderRight: '1px solid #000',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      fontSize: '8px'
+                    }}
+                  >
+                    <Text style={{ fontSize: '10px', fontFamily: 'PopBold' }}>Risk Surcharge</Text>
+                  </View>
+
+                  <View
+                    style={{
+                      width: '50%',
+                      height: '60px',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      fontSize: '8px'
+                    }}
+                  >
+                    <View style={{ width: '50%', height: '60px' }}>
+                      <View
+                        style={{
+                          width: '100%',
+                          height: '60px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          fontSize: '8px'
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: '100%',
+                            height: '30px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderBottom: '1px solid #000',
+                            borderRight: '1px solid #000'
+                          }}
+                        >
+                          <Text style={{ fontFamily: 'PopBold' }}>Owner</Text>
+                        </View>
+                        <View
+                          style={{
+                            width: '100%',
+                            height: '30px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRight: '1px solid #000'
+                          }}
+                        >
+                          <Text style={{ fontFamily: 'PopBold' }}>Carrier</Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View style={{ width: '50%', height: '60px' }}>
+                      <View
+                        style={{
+                          width: '100%',
+                          height: '60px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          fontSize: '8px'
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: '100%',
+                            height: '30px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderBottom: '1px solid #000'
+                          }}
+                        >
+                          <Text style={{ fontFamily: 'PopBold' }}></Text>
+                        </View>
+                        <View
+                          style={{
+                            width: '100%',
+                            height: '30px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <Text style={{ fontFamily: 'PopBold' }}></Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Row-4 */}
+            <View
+              style={{
+                width: '100%',
+                height: '20px',
+                display: 'flex',
+                flexDirection: 'row',
+                borderRight: '1px solid #000',
+                borderLeft: '1px solid #000',
+                borderBottom: '1px solid #000'
+              }}
+            >
+              <View
+                style={{
+                  width: '50%',
+                  height: '20px',
+                  borderRight: '1px solid #000',
+                  fontFamily: 'PopBold',
+                  fontSize: '7px',
+                  display: 'flex',
+                  justifyContent: 'space-around',
+                  alignItems: 'center',
+                  flexDirection: 'row'
+                }}
+              >
+                <Text>reachonexpress.com/</Text>
+                <Text>reachonexpress@gmail.com</Text>
+                <Text>+91 94438 94875</Text>
+              </View>
+              <View
+                style={{
+                  width: '50%',
+                  height: '20px',
+                  fontFamily: 'PopBold',
+                  fontSize: 7,
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  flexDirection: 'row'
+                }}
+              >
+                <Text style={{ paddingLeft: '5px' }}>Amount collected (in Rs.):</Text>
+              </View>
+            </View>
+
+            {/* Row-5 */}
+            <View
+              style={{
+                width: '100%',
+                height: '15px',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                alignItems: 'center',
+                borderRight: '1px solid #000',
+                borderLeft: '1px solid #000',
+                borderBottom: '1px solid #000'
+              }}
+            >
+              <Text style={{ fontSize: '6px', fontFamily: 'PopBold' }}>
+                DOCUMENT IS NOT A TAX INVOICE. WEIGHT CAPTURED BY REACHON EXPRESS WILL BE USED FOR
+                INVOICE GENERATION.
+              </Text>
+              <Text style={{ fontSize: '6px', fontFamily: 'PopBold' }}>Sender's Copy</Text>
+            </View>
+
+            {/* Line Cut */}
+            <View
+              style={{
+                width: '100%',
+                height: '100px',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <View
+                style={{
+                  width: '15%',
+                  borderBottom: '1px solid #000',
+                  borderStyle: 'dashed'
+                }}
+              ></View>
+              <Image src={cut} style={{ height: '20px' }} />
+              <View
+                style={{
+                  width: '15%',
+                  borderBottom: '1px solid #000',
+                  borderStyle: 'dashed'
+                }}
+              ></View>
+              <Image src={cut} style={{ height: '20px' }} />
+              <View
+                style={{
+                  width: '15%',
+                  borderBottom: '1px solid #000',
+                  borderStyle: 'dashed'
+                }}
+              ></View>
+              <Image src={cut} style={{ height: '20px' }} />
+              <View
+                style={{
+                  width: '15%',
+                  borderBottom: '1px solid #000',
+                  borderStyle: 'dashed'
+                }}
+              ></View>
+              <Image src={cut} style={{ height: '20px' }} />
+              <View
+                style={{
+                  width: '15%',
+                  borderBottom: '1px solid #000',
+                  borderStyle: 'dashed'
+                }}
+              ></View>
+              <Image src={cut} style={{ height: '20px' }} />
+              <View
+                style={{
+                  width: '15%',
+                  borderBottom: '1px solid #000',
+                  borderStyle: 'dashed'
+                }}
+              ></View>
+            </View>
+
+            {/* Row-1 */}
+            <View
+              style={{
+                width: '100%',
+                height: '80px',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                border: '1px solid #000'
+              }}
+            >
+              <View
+                style={{
+                  width: '40%',
+                  height: '80px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  borderRight: '1px solid #000',
+                  padding: '10px'
+                }}
+              >
+                <Image src={logo} style={{ width: '45%', marginBottom: '10px' }} />
+                <View
+                  style={{
+                    fontSize: '7px',
+                    fontFamily: 'PopBold',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Text>Reachon Express Private Limited</Text>
+                  <Text>No 118 Gandhiji Road, Erode HO,</Text>
+                  <Text>Erode - 638001 (Near Railway Station)</Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: '30%',
+                  height: '80px',
+                  borderRight: '1px solid #000'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    height: '40px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    borderBottom: '1px solid #000',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Origin:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>Erode</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    height: '40px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Product:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>Ground Express</Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: '30%',
+                  height: '80px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    height: '26px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    borderBottom: '1px solid #000',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Dest:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigneeCity}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    height: '26px',
+                    display: 'flex',
+                    borderBottom: '1px solid #000',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Type:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{parcelType?.name}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    height: '28px',
+                    display: 'flex',
+                    borderBottom: '1px solid #000',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Date:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{formattedDate}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Row-2 */}
+            <View
+              style={{
+                width: '100%',
+                height: '80px',
+                display: 'flex',
+                flexDirection: 'row',
+                borderRight: '1px solid #000',
+                borderLeft: '1px solid #000',
+                borderBottom: '1px solid #000'
+              }}
+            >
+              <View
+                style={{
+                  width: '50%',
+                  height: '80px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  borderRight: '1px solid #000',
+                  padding: '5px',
+                  fontSize: '8px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Consignor's Name:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consignersName}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Consignor's Address:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>
+                    {consignerAddress + ', ' + consignorCity + ', ' + consignorState}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>GSTIN No:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigerGstNumber}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Phone No:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigerPhone}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Email:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigerEmail}</Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: '50%',
+                  height: '80px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  // borderRight: "1px solid #000",
+                  padding: '5px',
+                  fontSize: '8px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Customer Ref No:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigeeRefNumber}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Consignee's Name:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigneName}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Consignee's Address:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>
+                    {consigeeAddress + ', ' + consigneeCity + ', ' + consigneeState}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>GSTIN No:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigneeGst}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Phone No:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigneePhone}</Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    fontSize: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '3px'
+                  }}
+                >
+                  <Text>Email:</Text>
+                  <Text style={{ fontFamily: 'PopBold' }}>{consigneeEmail}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Row-3 */}
+            <View
+              style={{
+                width: '100%',
+                height: '120px',
+                display: 'flex',
+                flexDirection: 'row',
+                borderRight: '1px solid #000',
+                borderLeft: '1px solid #000'
+              }}
+            >
+              <View
+                style={{
+                  width: '25%',
+                  height: '120px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRight: '1px solid #000',
+                    borderBottom: '1px solid #000',
+                    padding: '5px',
+                    fontSize: '8px'
+                  }}
+                >
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text style={{ fontFamily: 'PopBold' }}>Content Specification:</Text>
+                    <Text>{contentSpecifications}</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text style={{ fontFamily: 'PopBold' }}>Paper Enclosed:</Text>
+                    <Text>{paperEnclosed}</Text>
+                  </View>
+                </View>
+
+                <View
+                  style={{
+                    width: '100%',
+                    height: '80px',
+                    borderRight: '1px solid #000',
+                    borderBottom: '1px solid #000',
+                    fontSize: '5px',
+                    fontFamily: 'PopRegular',
+                    textAlign: 'justify',
+                    padding: '5px 5px'
+                  }}
+                >
+                  <Text style={{ textAlign: 'justify' }}>
+                    I/We declare that this consignment does not contain personal mail, cash,
+                    jewellery, contraband, illegal drugs, any prohibited items and commodities which
+                    can cause safety hazards while transporting
+                  </Text>
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      marginTop: '10px',
+                      fontFamily: 'PopBold',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    Sende's Signature & Seal
+                  </Text>
+                  <Text style={{ textAlign: 'justify', marginTop: '2px' }}>
+                    I have read and understood terms & conditions ofcarriage mentioned on website
+                    www.dtdc.in, and I agree to the Same.
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: '25%',
+                  height: '120px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRight: '1px solid #000',
+                    borderBottom: '1px solid #000',
+                    fontSize: '8px'
+                  }}
+                >
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      height: '13px',
+                      borderBottom: '1px solid #000',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text>Declared Value:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>{declaredValue}</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      height: '13px',
+                      borderBottom: '1px solid #000',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text>No Of Pieces:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>{numberOfPieces}</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      height: '14px',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text>Actual Weight:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>{actualWeight} Kgs</Text>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    height: '26px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRight: '1px solid #000',
+                    borderBottom: '1px solid #000',
+                    fontSize: '8px'
+                  }}
+                >
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      height: '13px',
+                      borderBottom: '1px solid #000',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text>Dim:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>
+                      {height} cm X {weight} cm X {breadth} cm
+                    </Text>
+                  </View>
+
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '7px',
+                      height: '13px',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text>Charged weight:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>{chargedWeight} Kgs</Text>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    height: '54px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRight: '1px solid #000',
+                    borderBottom: '1px solid #000',
+                    justifyContent: 'flex-start',
+                    alignItems: 'center',
+                    fontSize: 5
+                  }}
+                >
+                  <View
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text style={{ fontFamily: 'PopBold' }}>Name:</Text>
+                    <Text>Reachon Express Private Limited</Text>
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: 3,
+                      // justifyContent: "center",
+                      alignItems: 'flex-start'
+                      // gap: "3px",
+                    }}
+                  >
+                    <Text style={{ width: '18%', fontFamily: 'PopBold' }}>Address:</Text>
+                    <Text style={{ width: '75%' }}>
+                      No 118 Gandhiji Road, Erode HO, Erode - 638001 (Near Railway Station){' '}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      paddingLeft: '3px',
+                      // justifyContent: "center",
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <Text style={{ fontFamily: 'PopBold' }}>Phone:</Text>
+                    <Text>+91 94438 94875</Text>
+                  </View>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: '50%',
+                  height: '120px'
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    height: '66px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderBottom: '1px solid #000',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: '5px',
+                    fontSize: 8
+                  }}
+                >
+                  <Text style={{ marginTop: '1px', height: '20px' }}>Place Your Barcode Here</Text>
+                  <View
+                    style={{
+                      width: '100%',
+                      fontSize: '8px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      // alignItems: "ceter",
+                      flexDirection: 'row',
+                      gap: '3px',
+                      paddingTop: '5px'
+                    }}
+                  >
+                    <Text style={{ marginTop: '1px' }}>AWB No:</Text>
+                    <Text style={{ fontFamily: 'PopBold' }}>{selectedLeaf?.vendorLeaf}</Text>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    height: '66px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    borderBottom: '1px solid #000',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    fontSize: '8px'
+                  }}
+                >
+                  <View
+                    style={{
+                      width: '50%',
+                      height: '60px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      borderRight: '1px solid #000',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      fontSize: '8px'
+                    }}
+                  >
+                    <Text style={{ fontSize: '10px', fontFamily: 'PopBold' }}>Risk Surcharge</Text>
+                  </View>
+
+                  <View
+                    style={{
+                      width: '50%',
+                      height: '60px',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      fontSize: '8px'
+                    }}
+                  >
+                    <View style={{ width: '50%', height: '60px' }}>
+                      <View
+                        style={{
+                          width: '100%',
+                          height: '60px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          fontSize: '8px'
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: '100%',
+                            height: '30px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderBottom: '1px solid #000',
+                            borderRight: '1px solid #000'
+                          }}
+                        >
+                          <Text style={{ fontFamily: 'PopBold' }}>Owner</Text>
+                        </View>
+                        <View
+                          style={{
+                            width: '100%',
+                            height: '30px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRight: '1px solid #000'
+                          }}
+                        >
+                          <Text style={{ fontFamily: 'PopBold' }}>Carrier</Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View style={{ width: '50%', height: '60px' }}>
+                      <View
+                        style={{
+                          width: '100%',
+                          height: '60px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          fontSize: '8px'
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: '100%',
+                            height: '30px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderBottom: '1px solid #000'
+                          }}
+                        >
+                          <Text style={{ fontFamily: 'PopBold' }}></Text>
+                        </View>
+                        <View
+                          style={{
+                            width: '100%',
+                            height: '30px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <Text style={{ fontFamily: 'PopBold' }}></Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Row-4 */}
+            <View
+              style={{
+                width: '100%',
+                height: '20px',
+                display: 'flex',
+                flexDirection: 'row',
+                borderRight: '1px solid #000',
+                borderLeft: '1px solid #000',
+                borderBottom: '1px solid #000'
+              }}
+            >
+              <View
+                style={{
+                  width: '50%',
+                  height: '20px',
+                  borderRight: '1px solid #000',
+                  fontFamily: 'PopBold',
+                  fontSize: '7px',
+                  display: 'flex',
+                  justifyContent: 'space-around',
+                  alignItems: 'center',
+                  flexDirection: 'row'
+                }}
+              >
+                <Text>reachonexpress.com/</Text>
+                <Text>reachonexpress@gmail.com</Text>
+                <Text>+91 94438 94875</Text>
+              </View>
+              <View
+                style={{
+                  width: '50%',
+                  height: '20px',
+                  fontFamily: 'PopBold',
+                  fontSize: 7,
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  flexDirection: 'row'
+                }}
+              >
+                <Text style={{ paddingLeft: '5px' }}>Amount collected (in Rs.):</Text>
+              </View>
+            </View>
+
+            {/* Row-5 */}
+            <View
+              style={{
+                width: '100%',
+                height: '15px',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                alignItems: 'center',
+                borderRight: '1px solid #000',
+                borderLeft: '1px solid #000',
+                borderBottom: '1px solid #000'
+              }}
+            >
+              <Text style={{ fontSize: '6px', fontFamily: 'PopBold' }}>
+                DOCUMENT IS NOT A TAX INVOICE. WEIGHT CAPTURED BY REACHON EXPRESS WILL BE USED FOR
+                INVOICE GENERATION.
+              </Text>
+              <Text style={{ fontSize: '6px', fontFamily: 'PopBold' }}>Sender's Copy</Text>
+            </View>
+          </View>
+        </Page>
+      </Document>
+    )
 
     console.log('testing line 410')
     const pdfBlob = await pdf(doc).toBlob()
@@ -575,7 +2259,7 @@ const Booking: React.FC = () => {
                     checkmark={true}
                     highlightOnSelect={false}
                   />
-                  <label htmlFor="partnerDropDown">Select Partners</label>
+                  <label htmlFor="partnerDropDown">Select Partner</label>
                 </FloatLabel>
 
                 <FloatLabel>
@@ -683,7 +2367,13 @@ const Booking: React.FC = () => {
                         <InputText
                           placeholder="GST Number"
                           value={consigerGstNumber}
-                          onChange={(e) => setConsigerGstNumber(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value.toUpperCase()
+                            if (/^[0-9A-Z]{0,15}$/.test(value)) {
+                              setConsigerGstNumber(value)
+                            }
+                          }}
+                          maxLength={15}
                         />
                       </div>
                     </div>
@@ -695,7 +2385,13 @@ const Booking: React.FC = () => {
                         <InputText
                           placeholder="Phone"
                           value={consigerPhone}
-                          onChange={(e) => setConsigerPhone(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            if (/^\d{0,10}$/.test(value)) {
+                              setConsigerPhone(value)
+                            }
+                          }}
+                          maxLength={10}
                         />
                       </div>
                       <div className="p-inputgroup flex-1">
@@ -709,25 +2405,43 @@ const Booking: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <div className="card flex flex-column md:flex-row gap-3">
-                      <div className="p-inputgroup flex-1">
-                        <span className="p-inputgroup-addon">
-                          <Building2 size={20} />{' '}
-                        </span>
-                        <InputText
-                          placeholder="City"
-                          value={consignorCity}
-                          onChange={(e) => setConsignorCity(e.target.value)}
-                        />
-                      </div>
+                    <div className="card flex flex-column md:flex-row gap-3 w-full">
                       <div className="p-inputgroup flex-1">
                         <span className="p-inputgroup-addon">
                           <MapPinned size={20} />
                         </span>
-                        <InputText
-                          placeholder="State"
+                        <Dropdown
+                          name="state"
                           value={consignorState}
-                          onChange={(e) => setConsignorState(e.target.value)}
+                          filter
+                          options={states}
+                          style={{ width: '100%' }}
+                          optionLabel="name"
+                          optionValue="isoCode"
+                          placeholder="State"
+                          onChange={(e) => {
+                            setConsignorState(e.target.value)
+                            setDistricts(City.getCitiesOfState('IN', e.target.value))
+                          }}
+                          required
+                        />
+                      </div>
+                      <div className="p-inputgroup flex-1">
+                        <span className="p-inputgroup-addon">
+                          <Building2 size={20} />{' '}
+                        </span>
+                        <Dropdown
+                          className="dropDown"
+                          name="district"
+                          style={{ width: '100%' }}
+                          value={consignorCity}
+                          filter
+                          placeholder="City"
+                          options={districts}
+                          optionLabel="name"
+                          optionValue="name"
+                          onChange={(e) => setConsignorCity(e.target.value)}
+                          required
                         />
                       </div>
                     </div>
@@ -788,7 +2502,13 @@ const Booking: React.FC = () => {
                       <InputText
                         placeholder="GST Number"
                         value={consigneeGst}
-                        onChange={(e) => setConsigneeGst(e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value.toUpperCase()
+                          if (/^[0-9A-Z]{0,15}$/.test(value)) {
+                            setConsigneeGst(value)
+                          }
+                        }}
+                        maxLength={15}
                       />
                     </div>
                   </div>
@@ -800,7 +2520,12 @@ const Booking: React.FC = () => {
                       <InputText
                         placeholder="Phone"
                         value={consigneePhone}
-                        onChange={(e) => setConsigneePhone(e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          if (/^\d{0,10}$/.test(value)) {
+                            setConsigneePhone(value)
+                          }
+                        }}
                       />
                     </div>
                     <div className="p-inputgroup flex-1">
@@ -814,25 +2539,43 @@ const Booking: React.FC = () => {
                       />
                     </div>
                   </div>
-                  <div className="card flex flex-column md:flex-row gap-3">
-                    <div className="p-inputgroup flex-1">
-                      <span className="p-inputgroup-addon">
-                        <Building2 size={20} />{' '}
-                      </span>
-                      <InputText
-                        placeholder="City"
-                        value={consigneeCity}
-                        onChange={(e) => setConsigneeCity(e.target.value)}
-                      />
-                    </div>
+                  <div className="card flex flex-column md:flex-row gap-3 w-full">
                     <div className="p-inputgroup flex-1">
                       <span className="p-inputgroup-addon">
                         <MapPinned size={20} />
                       </span>
-                      <InputText
-                        placeholder="State"
+                      <Dropdown
+                        name="state"
                         value={consigneeState}
-                        onChange={(e) => setConsigneeState(e.target.value)}
+                        filter
+                        options={states}
+                        style={{ width: '100%' }}
+                        optionLabel="name"
+                        optionValue="isoCode"
+                        placeholder="State"
+                        onChange={(e) => {
+                          setConsigneeState(e.target.value)
+                          setDistricts(City.getCitiesOfState('IN', e.target.value))
+                        }}
+                        required
+                      />
+                    </div>
+                    <div className="p-inputgroup flex-1">
+                      <span className="p-inputgroup-addon">
+                        <Building2 size={20} />{' '}
+                      </span>
+                      <Dropdown
+                        className="dropDown"
+                        name="district"
+                        style={{ width: '100%' }}
+                        value={consigneeCity}
+                        filter
+                        placeholder="City"
+                        options={districts}
+                        optionLabel="name"
+                        optionValue="name"
+                        onChange={(e) => setConsigneeCity(e.target.value)}
+                        required
                       />
                     </div>
                   </div>
@@ -990,6 +2733,7 @@ const Booking: React.FC = () => {
                 className="w-full md:w-14rem "
                 placeholder="Net Amount"
                 value={netAmoutn}
+                disabled
                 onChange={(e) => setNetAmount(e.target.value)}
               />
               <InputText
@@ -1002,9 +2746,6 @@ const Booking: React.FC = () => {
             <div className="flex gap-3" style={{ paddingBottom: '30px' }}>
               <div style={{ marginTop: '20px' }} onClick={() => handlePayload()}>
                 <Button>Book Parcel</Button>
-              </div>
-              <div style={{ marginTop: '20px' }} onClick={handlePdfDownload}>
-                <Button>Download</Button>
               </div>
             </div>
           </TabPanel>

@@ -19,7 +19,11 @@ interface SetJsonData {
   vendorLeaf: string
 }
 
-const UploadExcelSidebar: React.FC = () => {
+interface UploadExcelSidebarProps {
+  setVisibleRight: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const UploadExcelSidebar: React.FC<UploadExcelSidebarProps> = ({ setVisibleRight }) => {
   const [checked, setChecked] = useState(false)
   const [uploadedData, setUploadedData] = useState<SetJsonData[] | null>(null)
   const [isDuplicateFound, setIsDuplicateFound] = useState(false)
@@ -158,7 +162,6 @@ const UploadExcelSidebar: React.FC = () => {
       console.log('uploadedData', uploadedData)
       console.log('Payload:', JSON.stringify(uploadedData, null, 2))
 
-      // localStorage.setItem("uploadedExcel", JSON.stringify(uploadedData));
       axios
         .post(
           import.meta.env.VITE_API_URL + '/routes/addMapping',
@@ -180,6 +183,10 @@ const UploadExcelSidebar: React.FC = () => {
               detail: 'Data has been successfully uploaded.',
               life: 3000
             })
+            setTimeout(() => {
+              setVisibleRight(false)
+              resetUpload()
+            }, 3000)
           } else {
             toast.current?.show({
               severity: 'error',
@@ -205,16 +212,31 @@ const UploadExcelSidebar: React.FC = () => {
   }
 
   const downloadSampleExcel = () => {
-    const excelURL = '../../assets/excel/sample.xlsx'
+    const dtdcExcelUrl = './DTDC.xlsx'
 
-    fetch(excelURL)
+    fetch(dtdcExcelUrl)
       .then((res) => res.blob())
       .then((blob) => {
         const url = window.URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
-        link.download = 'sample.xlsx' // Specify the filename
-        link.click() // Trigger the download
+        link.download = 'DTDC_Sample.xlsx'
+        link.click()
+      })
+      .catch((err) => console.error('Error downloading the Excel file:', err))
+  }
+
+  const downloadSampleExcelDelhivery = () => {
+    const delhiveryExcelUrl = './Delhivery.xlsx'
+
+    fetch(delhiveryExcelUrl)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = 'Delhivery_Sample.xlsx'
+        link.click()
       })
       .catch((err) => console.error('Error downloading the Excel file:', err))
   }
@@ -238,7 +260,11 @@ const UploadExcelSidebar: React.FC = () => {
           <>
             <div className="flex align-items-center">
               <Button icon="pi pi-download" rounded text onClick={downloadSampleExcel} />
-              <p>Download Bulk Upload Sample Excel</p>
+              <p className="ml-2">Download Bulk Upload Sample Excel for DTDC</p>
+            </div>
+            <div className="flex align-items-center">
+              <Button icon="pi pi-download" rounded text onClick={downloadSampleExcelDelhivery} />
+              <p>Download Bulk Upload Sample Excel for Delhivery</p>
             </div>
             <div className="flex align-items-center mt-2 mb-2">
               <InputSwitch checked={checked} onChange={(e) => setChecked(e.value)} />

@@ -274,7 +274,7 @@ const TestingPDF: React.FC = () => {
                   gap: '3px'
                 }}
               >
-                <Text>Consignor's Name:</Text>
+                <Text>Consignee's Name:</Text>
                 <Text style={{ fontFamily: 'PopBold' }}>S. Vinoth</Text>
               </View>
               <View
@@ -286,7 +286,7 @@ const TestingPDF: React.FC = () => {
                   gap: '3px'
                 }}
               >
-                <Text>Consignor's Address:</Text>
+                <Text>Consignee's Address:</Text>
                 <Text style={{ fontFamily: 'PopBold' }}>COIMBATORE, TAMIL NADU, 641028</Text>
               </View>
               <View

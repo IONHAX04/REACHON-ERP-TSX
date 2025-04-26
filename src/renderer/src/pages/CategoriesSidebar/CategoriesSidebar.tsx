@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { useState, useEffect } from 'react'
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
@@ -9,6 +9,7 @@ import { Dropdown } from 'primereact/dropdown'
 import axios from 'axios'
 import decrypt from '../../helper'
 import { LayoutDashboard, LayoutPanelTop } from 'lucide-react'
+import { Toast } from 'primereact/toast'
 
 interface Category {
   name: string
@@ -24,6 +25,7 @@ interface SubCategory {
 }
 
 const CategoriesSidebar: React.FC = () => {
+  const toast = useRef<Toast>(null)
   const [showInputSection, setShowInputSection] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const [categories, setCategories] = useState<Category[] | null>(null)
@@ -139,6 +141,11 @@ const CategoriesSidebar: React.FC = () => {
           const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
           console.log('data - line 60', data)
           if (data.success) {
+            toast.current?.show({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Sub Categories Added Successfully !'
+            })
             getCategory()
             getSubCategory()
           }
@@ -179,6 +186,7 @@ const CategoriesSidebar: React.FC = () => {
 
   return (
     <div>
+      <Toast ref={toast} />
       <h3>Categories</h3>
       <div className="flex flex-wrap gap-2 mb-3 align-items-center justify-content-end">
         <Button

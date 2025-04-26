@@ -119,7 +119,7 @@ const Key: React.FC = () => {
         setCustomers([])
         console.error('Error fetching vendor details:', error)
       })
-  }, [])
+  }, [visibleRight])
 
   useEffect(() => {
     let filtered = [...customers]
@@ -319,7 +319,7 @@ const Key: React.FC = () => {
           style={{ width: '70vw' }}
           onHide={() => setVisibleRight(false)}
         >
-          <UploadExcelSidebar />
+          <UploadExcelSidebar setVisibleRight={setVisibleRight} />
         </Sidebar>
       </>
     </div>

@@ -43,8 +43,6 @@ const VendorSidebar: React.FC = () => {
   console.log('checked', checked)
 
   useEffect(() => {
-    // const storedProducts = JSON.parse(localStorage.getItem('vendors')) || []
-    // setCustomersDetails(storedProducts)
     getPartners()
   }, [])
 
@@ -65,11 +63,24 @@ const VendorSidebar: React.FC = () => {
 
   // const addProduct = () => {
   //   if (customer.trim() && code.trim()) {
-  //     const newProduct = {
-  //       id: customerDetails.length + 1,
-  //       name: customer,
-  //       code: code
+  //     const newProduct: SetCustomer = {
+  //       id: customerDetails.length + 1, // You might want to handle ID generation differently
+  //       createdAt: new Date().toISOString(), // Set default values for required fields
+  //       createdBy: 'currentUser ', // Replace with actual user info if available
+  //       refAddress: address,
+  //       refCode: code,
+  //       refCustId: '', // Set appropriate value
+  //       refCustomerId: customerDetails.length + 1, // Or however you want to generate this
+  //       refCustomerName: customer,
+  //       refCustomerType: regularMode,
+  //       refDummy4: '', // Set appropriate value
+  //       refDummy5: '', // Set appropriate value
+  //       refNotes: notes,
+  //       refPhone: phone,
+  //       updatedAt: new Date().toISOString(), // Set default values for required fields
+  //       updatedBy: 'currentUser ' // Replace with actual user info if available
   //     }
+
   //     const newProducts = [...customerDetails, newProduct]
   //     console.log('newProducts', newProducts)
 
@@ -114,29 +125,39 @@ const VendorSidebar: React.FC = () => {
 
   const addProduct = () => {
     if (customer.trim() && code.trim()) {
+      // Check for duplicates based on customer name and code
+      const isDuplicate = customerDetails.some(
+        (item) =>
+          item.refCustomerName.toLowerCase() === customer.trim().toLowerCase() &&
+          item.refCode.toLowerCase() === code.trim().toLowerCase()
+      )
+
+      if (isDuplicate) {
+        alert('Customer with the same name and code already exists.')
+        return
+      }
+
       const newProduct: SetCustomer = {
-        id: customerDetails.length + 1, // You might want to handle ID generation differently
-        createdAt: new Date().toISOString(), // Set default values for required fields
-        createdBy: 'currentUser ', // Replace with actual user info if available
+        id: customerDetails.length + 1,
+        createdAt: new Date().toISOString(),
+        createdBy: 'currentUser ',
         refAddress: address,
         refCode: code,
-        refCustId: '', // Set appropriate value
-        refCustomerId: customerDetails.length + 1, // Or however you want to generate this
+        refCustId: '',
+        refCustomerId: customerDetails.length + 1,
         refCustomerName: customer,
         refCustomerType: regularMode,
-        refDummy4: '', // Set appropriate value
-        refDummy5: '', // Set appropriate value
+        refDummy4: '',
+        refDummy5: '',
         refNotes: notes,
         refPhone: phone,
-        updatedAt: new Date().toISOString(), // Set default values for required fields
-        updatedBy: 'currentUser ' // Replace with actual user info if available
+        updatedAt: new Date().toISOString(),
+        updatedBy: 'currentUser '
       }
 
       const newProducts = [...customerDetails, newProduct]
-      console.log('newProducts', newProducts)
-
       setCustomersDetails(newProducts)
-      // localStorage.setItem("vendors", JSON.stringify(newProducts));
+
       try {
         axios
           .post(
@@ -157,19 +178,24 @@ const VendorSidebar: React.FC = () => {
           )
           .then((res) => {
             const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-            console.log('data', data)
             if (data.success) {
               getPartners()
             }
           })
           .catch((error) => {
-            console.error('Error fetching vendor details:', error)
+            console.error('Error adding vendor:', error)
           })
       } catch (error) {
         console.error(error)
       }
+
+      // Reset inputs
       setCustomer('')
       setCode('')
+      setPhone('')
+      setAddress('')
+      setNotes('')
+      setRegularMode(false)
       setShowInputSection(false)
     }
   }
@@ -217,7 +243,13 @@ const VendorSidebar: React.FC = () => {
                 <InputText
                   placeholder="Phone"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  maxLength={10}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    if (/^\d*$/.test(value)) {
+                      setPhone(value)
+                    }
+                  }}
                 />
               </div>
               <div className="p-inputgroup flex-1 align-items-center justify-content-between">
@@ -256,21 +288,6 @@ const VendorSidebar: React.FC = () => {
     </>
   )
 
-  const quantityTemplate = (rowData) => {
-    return (
-      <div className="flex align-items-center justify-content-center">
-        <Button
-          rounded
-          outlined
-          text
-          severity="info"
-          icon="pi pi-pencil"
-          onClick={() => console.log('Edit quantity for', rowData.id)}
-        />
-      </div>
-    )
-  }
-
   const customerTypeTemplate = (rowData) => {
     return (
       <div className="flex align-items-center justify-content-center">
@@ -304,12 +321,6 @@ const VendorSidebar: React.FC = () => {
           field="code"
           header="Reg / Walk"
           body={customerTypeTemplate}
-          style={{ minWidth: '10rem' }}
-        ></Column>
-        <Column
-          field="edit"
-          header="Actions"
-          body={quantityTemplate}
           style={{ minWidth: '10rem' }}
         ></Column>
       </DataTable>

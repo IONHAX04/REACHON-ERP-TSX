@@ -165,7 +165,7 @@ const Key: React.FC = () => {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
     }
-  }, [])
+  }, [visibleRight])
 
   useEffect(() => {
     let filtered = [...customers]
@@ -284,6 +284,8 @@ const Key: React.FC = () => {
     </div>
   )
 
+  const footer = `In total there are ${filteredCustomers ? filteredCustomers.length : 0} Leafs.`
+
   return (
     <div>
       <>
@@ -329,6 +331,7 @@ const Key: React.FC = () => {
               disabled={Array.isArray(rangeDates) && rangeDates.length > 0}
               panelClassName="multi-calendar"
               showIcon
+              dateFormat="yy-mm-dd"
             />
 
             <Calendar
@@ -346,6 +349,7 @@ const Key: React.FC = () => {
               disabled={Array.isArray(multiDates) && multiDates.length > 0}
               panelClassName="range-calendar"
               showIcon
+              dateFormat="yy-mm-dd"
             />
           </div>
           <Toolbar
@@ -366,6 +370,7 @@ const Key: React.FC = () => {
             stripedRows
             className="transactionDetailsTable"
             header={header}
+            footer={footer}
             globalFilter={globalFilter}
           >
             <Column

@@ -75,10 +75,6 @@ const Key: React.FC = () => {
   const [multiDates, setMultiDates] = useState<Nullable<Date[]>>(null)
   const [rangeDates, setRangeDates] = useState<Nullable<(Date | null)[]>>(null)
 
-  useEffect(() => {
-    getPartners()
-  }, [])
-
   const getPartners = () => {
     axios
       .get(import.meta.env.VITE_API_URL + '/Routes/getPartner', {
@@ -102,7 +98,7 @@ const Key: React.FC = () => {
     { name: 'Cancelled', code: 5 }
   ]
 
-  useEffect(() => {
+  const fetchKeydata = () => {
     axios
       .get(import.meta.env.VITE_API_URL + '/routes/mapping', {
         headers: { Authorization: localStorage.getItem('JWTtoken') }
@@ -119,6 +115,11 @@ const Key: React.FC = () => {
         setCustomers([])
         console.error('Error fetching vendor details:', error)
       })
+  }
+
+  useEffect(() => {
+    getPartners()
+    fetchKeydata()
   }, [visibleRight])
 
   useEffect(() => {
@@ -267,6 +268,9 @@ const Key: React.FC = () => {
             ref={dt}
             scrollable
             showGridlines
+            paginator
+            rows={10}
+            rowsPerPageOptions={[5, 10, 25, 50]}
             stripedRows
             className="transactionDetailsTable"
             header={header}

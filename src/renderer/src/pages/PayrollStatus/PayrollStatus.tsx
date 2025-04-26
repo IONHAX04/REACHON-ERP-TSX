@@ -7,6 +7,8 @@ import { DataTable } from 'primereact/datatable'
 import { Dialog } from 'primereact/dialog'
 import { Nullable } from 'primereact/ts-helpers'
 import React, { useState } from 'react'
+import { Toast } from 'primereact/toast'
+import { useRef } from 'react'
 
 interface EmployeePayroll {
   sno: number
@@ -14,10 +16,13 @@ interface EmployeePayroll {
   employeeName: string
   basicPay: number
   pf: number
+  refUserId: number
   salary: number
 }
 
 const PayrollStatus: React.FC = () => {
+  const toast = useRef<Toast>(null)
+
   const [date, setDate] = useState<Nullable<Date>>(null)
   const [payrollData, setPayrollData] = useState<EmployeePayroll[]>([])
   const [showTable, setShowTable] = useState<boolean>(false)
@@ -25,6 +30,30 @@ const PayrollStatus: React.FC = () => {
   const [showDialog, setShowDialog] = useState<boolean>(false)
 
   const handleGetEmployees = () => {
+    if (!date) {
+      toast.current?.show({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Choose month and year',
+        life: 3000
+      })
+      return
+    }
+
+    const currentDate = new Date()
+    if (
+      date.getFullYear() > currentDate.getFullYear() ||
+      (date.getFullYear() === currentDate.getFullYear() && date.getMonth() > currentDate.getMonth())
+    ) {
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Cannot select future months',
+        life: 3000
+      })
+      return
+    }
+
     console.log('date', date)
     axios
       .post(
@@ -48,18 +77,51 @@ const PayrollStatus: React.FC = () => {
   }
 
   const calculateTotalSalary = () => {
-    return selectedEmployees.reduce((total, emp) => total + emp.salary, 0)
+    return selectedEmployees.reduce((total, emp) => total + Number(emp.salary), 0)
   }
 
   const handlePaySalary = () => {
     const totalSalary = calculateTotalSalary()
     console.log('Total Salary to be paid:', totalSalary)
-    console.log('Individual Split Up:', selectedEmployees)
+
+    const userIds = selectedEmployees.map((emp) => emp.refUserId)
+    console.log('Individual Split Up:', userIds)
+
+    axios
+      .post(
+        import.meta.env.VITE_API_URL + '/Employee/insertSalaryData',
+        {
+          employeeIds: userIds,
+          salaryMonth: date
+        },
+        {
+          headers: { Authorization: localStorage.getItem('JWTtoken') }
+        }
+      )
+      .then((res) => {
+        const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
+        console.log('list of data ---> line 75', data)
+        if (data.success) {
+          toast.current?.show({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Salary updated successfully',
+            life: 3000
+          })
+          setShowTable(false)
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching vendor details:', error)
+      })
+
     setShowDialog(false)
   }
 
   return (
     <div>
+      <Toast ref={toast} />
+
       <div className="flex justify-content-between align-items-center">
         <div className="flex align-items-center">
           <Calendar
@@ -72,6 +134,7 @@ const PayrollStatus: React.FC = () => {
             showIcon
             view="month"
             dateFormat="mm/yy"
+            maxDate={new Date()}
           />
           <Button
             label="Get Employees"

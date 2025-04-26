@@ -175,6 +175,7 @@ const UploadExcelSidebar: React.FC<UploadExcelSidebarProps> = ({ setVisibleRight
         .then((res) => {
           const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
           console.log('data', data)
+          localStorage.setItem('JWTtoken', data.token)
 
           if (data.success) {
             toast.current?.show({

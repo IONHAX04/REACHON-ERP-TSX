@@ -51,6 +51,8 @@ const CategoriesSidebar: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data line 62', data)
+        localStorage.setItem('JWTtoken', data.token)
+
         setCategories(data.Category)
       })
       .catch((error) => {
@@ -66,6 +68,8 @@ const CategoriesSidebar: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data line 62-------', data)
+        localStorage.setItem('JWTtoken', data.token)
+
         setData(data.SubCategory)
       })
       .catch((error) => {
@@ -103,6 +107,8 @@ const CategoriesSidebar: React.FC = () => {
           const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
           console.log('data - line 60', data)
           if (data.success) {
+            localStorage.setItem('JWTtoken', data.token)
+
             getCategory()
           }
         })
@@ -146,6 +152,8 @@ const CategoriesSidebar: React.FC = () => {
               summary: 'Success',
               detail: 'Sub Categories Added Successfully !'
             })
+            localStorage.setItem('JWTtoken', data.token)
+
             getCategory()
             getSubCategory()
           }

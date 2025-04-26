@@ -27,6 +27,8 @@ const PartnersSidebar: React.FC = () => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data', data)
         setPartnerDetails(data.partners)
+        localStorage.setItem('JWTtoken', data.token)
+
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)

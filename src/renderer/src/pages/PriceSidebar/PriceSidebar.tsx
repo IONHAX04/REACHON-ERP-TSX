@@ -63,6 +63,8 @@ const PriceSidebar: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data', data)
+        localStorage.setItem('JWTtoken', data.token)
+
         setPartners(data.partners)
       })
       .catch((error) => {
@@ -78,6 +80,8 @@ const PriceSidebar: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data line 62', data)
+        localStorage.setItem('JWTtoken', data.token)
+
         setProducts(data.price)
       })
       .catch((error) => {
@@ -132,6 +136,8 @@ const PriceSidebar: React.FC = () => {
         .then((res) => {
           const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
           console.log('data', data)
+          localStorage.setItem('JWTtoken', data.token)
+
           getPartnerDetails()
         })
         .catch((error) => {
@@ -156,6 +162,7 @@ const PriceSidebar: React.FC = () => {
         .then((res) => {
           const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
           console.log('data', data)
+          localStorage.setItem('JWTtoken', data.token)
         })
         .catch((error) => {
           console.error('Error fetching vendor details:', error)

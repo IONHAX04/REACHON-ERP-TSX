@@ -54,6 +54,8 @@ const VendorSidebar: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data', data)
+        localStorage.setItem('JWTtoken', data.token)
+
         setCustomersDetails(data.Customer)
       })
       .catch((error) => {
@@ -179,6 +181,8 @@ const VendorSidebar: React.FC = () => {
           .then((res) => {
             const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
             if (data.success) {
+              localStorage.setItem('JWTtoken', data.token)
+
               getPartners()
             }
           })

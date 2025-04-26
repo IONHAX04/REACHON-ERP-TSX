@@ -85,6 +85,7 @@ const Key: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data', data)
+        localStorage.setItem('JWTtoken', data.token)
         setVendors(data.partners)
       })
       .catch((error) => {
@@ -111,6 +112,8 @@ const Key: React.FC = () => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data line 63 --------- ', data)
         if (data.success) {
+          localStorage.setItem('JWTtoken', data.token)
+
           setCustomers(data.data)
           setFilteredCustomers(data.data)
         }

@@ -89,6 +89,8 @@ const Finance: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data line 33 ======== ', data)
+        localStorage.setItem('JWTtoken', data.token)
+
         setProducts(data.data)
       })
       .catch((error) => {

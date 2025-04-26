@@ -267,6 +267,8 @@ const Booking: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data.partners', data.partners)
+        localStorage.setItem('JWTtoken', data.token)
+
         setVendors(data.partners)
       })
       .catch((error) => {
@@ -279,6 +281,8 @@ const Booking: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data ======== ', data)
+        localStorage.setItem('JWTtoken', data.token)
+
         setCustomersDetails(data.Customer)
       })
       .catch((error) => {
@@ -294,6 +298,8 @@ const Booking: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data.partners line 79', data)
+        localStorage.setItem('JWTtoken', data.token)
+
         setParcelBookingData(data.data)
       })
       .catch((error) => {
@@ -540,6 +546,8 @@ const Booking: React.FC = () => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data line 63 --------- ', data)
         if (data.success) {
+          localStorage.setItem('JWTtoken', data.token)
+
           console.log('data.success', data.success)
           setCustomers(data.data)
         }

@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import { Toast } from 'primereact/toast'
-import { Button } from 'primereact/button'
 import axios from 'axios'
 import decrypt from '../../helper'
+import { Calendar } from 'primereact/calendar'
+import { useNavigate } from 'react-router-dom'
 
 // Interfaces
 interface Customer {
@@ -36,8 +37,10 @@ interface Product {
 }
 
 const Report: React.FC = () => {
+  const navigate = useNavigate()
   const [products, setProducts] = useState<Product[]>([])
   const [_customersdetail, setCustomerDetails] = useState<Customer[] | null>(null)
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null])
 
   const toast = useRef<Toast>(null)
 
@@ -48,7 +51,11 @@ const Report: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        setCustomerDetails(data.Customer)
+        if (data.token) {
+          setCustomerDetails(data.Customer)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
@@ -62,8 +69,12 @@ const Report: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        setProducts(data.data)
-        console.log('data.data', data.data)
+        if (data.token) {
+          setProducts(data.data)
+          console.log('data.data', data.data)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching report data:', error)
@@ -75,35 +86,55 @@ const Report: React.FC = () => {
     getReportData()
   }, [])
 
-  const rowExpansionTemplate = (data: Product) => {
-    return (
-      <div className="p-3">
-        <h5>{data.vendorLeaf}</h5>
-        <DataTable value={data.refParcelBookings}>
-          <Column
-            field="id"
-            header="S.No"
-            body={(_, { rowIndex }) => rowIndex + 1}
-            style={{ maxWidth: '1rem' }}
-          />
-          <Column
-            field="bookedDate"
-            header="Date"
-            body={(row) => new Date(row.bookedDate).toLocaleDateString('en-GB')}
-          />
-          <Column field="vendorLeaf" header="POD Number" />
-          <Column field="destination" header="Destination" />
-          <Column field="weight" header="Weight" />
-          <Column field="freight" header="Freight" />
-          <Column field="pickup" header="Pick Up" />
-          <Column field="amount" header="Amount" />
-          <Column header="Action" body={payButtonTemplate} />
-        </DataTable>
-      </div>
-    )
+  const dt = useRef<DataTable<any[]>>(null)
+
+  const exportCSV = () => {
+    dt.current?.exportCSV()
   }
 
-  const payButtonTemplate = () => <Button label="Edit" className="p-button-success" />
+  const tableHeader = (
+    <div className="flex justify-content-between align-items-center flex-wrap gap-2">
+      <div className="flex align-items-center gap-2">
+        <label className="font-medium">Booking Date:</label>
+        <Calendar
+          value={dateRange}
+          onChange={(e) => setDateRange(e.value as [Date | null, Date | null])}
+          selectionMode="range"
+          placeholder="Select date range"
+          readOnlyInput
+          showIcon
+        />
+      </div>
+
+      <div>
+        <button className="p-button p-button-sm p-button-success" onClick={() => exportCSV()}>
+          Export as CSV
+        </button>
+      </div>
+    </div>
+  )
+
+  const filteredProducts = products.filter((product) => {
+    const [start, end] = dateRange
+
+    if (!(start instanceof Date) || !(end instanceof Date)) {
+      return true // Do not filter if the range is not fully selected
+    }
+
+    const bookedDate = new Date(product.bookedDate)
+    const bookedDateOnly = new Date(
+      bookedDate.getFullYear(),
+      bookedDate.getMonth(),
+      bookedDate.getDate()
+    )
+
+    const startDate = new Date(start.getFullYear(), start.getMonth(), start.getDate())
+
+    const endDate = new Date(end.getFullYear(), end.getMonth(), end.getDate())
+    endDate.setHours(23, 59, 59, 999)
+
+    return bookedDateOnly >= startDate && bookedDateOnly <= endDate
+  })
 
   return (
     <div>
@@ -116,34 +147,48 @@ const Report: React.FC = () => {
         <Toast ref={toast} />
 
         <DataTable
-          value={products}
           showGridlines
+          ref={dt}
+          value={filteredProducts}
+          header={tableHeader}
           scrollable
           stripedRows
           className="reportDatatable"
-          rowExpansionTemplate={rowExpansionTemplate}
           dataKey="id"
         >
           <Column
             field="id"
             header="S.No"
             body={(_, { rowIndex }) => rowIndex + 1}
-            style={{ width: '1rem' }}
+            style={{ minWidth: '1rem' }}
           />
           <Column
             field="bookedDate"
             header="Date"
+            style={{ minWidth: '8rem' }}
             body={(rowData) => new Date(rowData.bookedDate).toLocaleDateString('en-GB')}
           />
-          <Column field="customerRefNo" header="Ref No" />
-          <Column field="consignorName" header="Consignor Name" />
-          <Column field="destination" header="Destination" />
-          <Column field="refCustId" header="Leaf" />
-          <Column field="destination" header="Destination" />
-          <Column field="pickUP" header="Pick UP" />
-          <Column field="weight" header="Weight" />
-          <Column field="netAmount" header="Amount" />
-          {/* <Column header="Action" body={payButtonTemplate} /> */}
+          <Column field="customerRefNo" header="Ref No" style={{ minWidth: '8rem' }} />
+          <Column field="consignorName" header="Consignor Name" style={{ minWidth: '12rem' }} />
+          <Column field="destination" header="Destination" style={{ minWidth: '8rem' }} />
+          <Column
+            field="vendorLeaf"
+            header="Leaf"
+            style={{ minWidth: '15rem' }}
+            body={(rowData) => {
+              try {
+                const parsedLeaf = JSON.parse(rowData.vendorLeaf)
+                return parsedLeaf.vendorLeaf
+              } catch (error) {
+                console.error('Error parsing vendorLeaf:', error)
+                return ''
+              }
+            }}
+          />
+
+          <Column field="pickUP" header="Pick UP" style={{ minWidth: '8rem' }} />
+          <Column field="weight" header="Weight" style={{ minWidth: '10rem' }} />
+          <Column field="netAmount" header="Amount" style={{ minWidth: '10rem' }} />
         </DataTable>
       </div>
     </div>

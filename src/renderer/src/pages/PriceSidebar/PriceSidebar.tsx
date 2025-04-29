@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import axios from 'axios'
 import decrypt from '../../helper'
+import { useNavigate } from 'react-router-dom'
 
 type Partner = {
   partnersId: number
@@ -38,6 +39,7 @@ type Product = {
 }
 
 const PriceSidebar: React.FC = () => {
+  const navigate = useNavigate()
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null)
   const [partners, setPartners] = useState<Partner[]>([])
   const [products, setProducts] = useState<Product[]>([])
@@ -62,10 +64,13 @@ const PriceSidebar: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data', data)
-        localStorage.setItem('JWTtoken', data.token)
-
-        setPartners(data.partners)
+        if (data.token) {
+          console.log('data', data)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setPartners(data.partners)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
@@ -79,10 +84,14 @@ const PriceSidebar: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data line 62', data)
-        localStorage.setItem('JWTtoken', data.token)
+        if (data.token) {
+          console.log('data line 62', data)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
 
-        setProducts(data.price)
+          setProducts(data.price)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
@@ -136,7 +145,7 @@ const PriceSidebar: React.FC = () => {
         .then((res) => {
           const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
           console.log('data', data)
-          localStorage.setItem('JWTtoken', data.token)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
 
           getPartnerDetails()
         })
@@ -162,7 +171,7 @@ const PriceSidebar: React.FC = () => {
         .then((res) => {
           const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
           console.log('data', data)
-          localStorage.setItem('JWTtoken', data.token)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
         })
         .catch((error) => {
           console.error('Error fetching vendor details:', error)

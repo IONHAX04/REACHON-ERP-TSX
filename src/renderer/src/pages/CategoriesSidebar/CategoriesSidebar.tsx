@@ -10,6 +10,7 @@ import axios from 'axios'
 import decrypt from '../../helper'
 import { LayoutDashboard, LayoutPanelTop } from 'lucide-react'
 import { Toast } from 'primereact/toast'
+import { useNavigate } from 'react-router-dom'
 
 interface Category {
   name: string
@@ -25,6 +26,7 @@ interface SubCategory {
 }
 
 const CategoriesSidebar: React.FC = () => {
+  const navigate = useNavigate()
   const toast = useRef<Toast>(null)
   const [showInputSection, setShowInputSection] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
@@ -50,10 +52,13 @@ const CategoriesSidebar: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data line 62', data)
-        localStorage.setItem('JWTtoken', data.token)
-
-        setCategories(data.Category)
+        if (data.token) {
+          console.log('data line 62', data)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setCategories(data.Category)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
@@ -67,10 +72,13 @@ const CategoriesSidebar: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data line 62-------', data)
-        localStorage.setItem('JWTtoken', data.token)
-
-        setData(data.SubCategory)
+        if (data.token) {
+          console.log('data line 62-------', data)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setData(data.SubCategory)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
@@ -107,7 +115,7 @@ const CategoriesSidebar: React.FC = () => {
           const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
           console.log('data - line 60', data)
           if (data.success) {
-            localStorage.setItem('JWTtoken', data.token)
+            localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
 
             getCategory()
           }
@@ -152,7 +160,7 @@ const CategoriesSidebar: React.FC = () => {
               summary: 'Success',
               detail: 'Sub Categories Added Successfully !'
             })
-            localStorage.setItem('JWTtoken', data.token)
+            localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
 
             getCategory()
             getSubCategory()

@@ -7,6 +7,7 @@ import { Toast } from 'primereact/toast'
 import axios from 'axios'
 import decrypt from '../../helper'
 import { Nullable } from 'primereact/ts-helpers'
+import { useNavigate } from 'react-router-dom'
 
 interface EmployeeSidebarProps {
   onEmployeeAdded: () => void
@@ -18,6 +19,7 @@ interface EmployeeOptionsProps {
 }
 
 const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) => {
+  const navigate = useNavigate()
   const toast = React.useRef<Toast>(null)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -43,10 +45,13 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data line 6dsfa2', data)
-        localStorage.setItem('JWTtoken', data.token)
-
-        setDesignations(data.Usertype)
+        if (data.token) {
+          console.log('data line 6dsfa2', data)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setDesignations(data.Usertype)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
@@ -135,8 +140,7 @@ const EmployeeSidebar: React.FC<EmployeeSidebarProps> = ({ onEmployeeAdded }) =>
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data - line 60', data)
-        localStorage.setItem('JWTtoken', data.token)
-
+        localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
 
         if (data.success && data.token) {
           // Clear the form

@@ -7,6 +7,7 @@ import { Dialog } from 'primereact/dialog'
 import { InputText } from 'primereact/inputtext'
 import axios from 'axios'
 import decrypt from '@renderer/helper'
+import { useNavigate } from 'react-router-dom'
 
 interface Product {
   id: string
@@ -66,6 +67,7 @@ interface staticData {
 ;[]
 
 const Finance: React.FC = () => {
+  const navigate = useNavigate()
   const [products, setProducts] = useState<staticData[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [visible, setVisible] = useState(false)
@@ -88,10 +90,13 @@ const Finance: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data line 33 ======== ', data)
-        localStorage.setItem('JWTtoken', data.token)
-
-        setProducts(data.data)
+        if (data.token) {
+          console.log('data line 33 ======== ', data)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setProducts(data.data)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)

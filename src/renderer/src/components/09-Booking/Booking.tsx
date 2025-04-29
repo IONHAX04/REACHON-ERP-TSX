@@ -45,6 +45,7 @@ import {
   UserRoundCheck,
   Weight
 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 // import { useNavigate } from 'react-router-dom'
 // import TestingPDF from '../11-TestingPDF/TestingPDF'
 
@@ -181,7 +182,23 @@ interface VendorLeafProps {
   vendorLeaf: string
 }
 
+interface Category {
+  name: string
+  id: string
+  refCategoryId: string
+  refCategory: string
+}
+
+interface SubCategory {
+  id: number
+  category: string
+  subCategory: string
+  subcategoryId: number
+  refCategoryId: number
+}
+
 const Booking: React.FC = () => {
+  const navigate = useNavigate()
   Font.register({ family: 'PopRegular', src: PopRegular })
   Font.register({ family: 'PopBoldItalic', src: PopBoldItalic })
   Font.register({ family: 'PopBold', src: PopBold })
@@ -192,6 +209,24 @@ const Booking: React.FC = () => {
 
   const [states, setStates] = useState([])
   const [districts, setDistricts]: any = useState([])
+
+  const [categories, setCategories] = useState<Category[]>([])
+  const [data, setData] = useState<SubCategory[]>([])
+  const [filteredSubCategories, setFilteredSubCategories] = useState<SubCategory[]>([])
+
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
+  const [selectedSubCategory, setSelectedSubCategory] = useState<SubCategory | null>(null)
+
+  const handleCategoryChange = (e) => {
+    const category = e.value
+    setSelectedCategory(category)
+
+    const filtered = data.filter((subCat) => subCat.refCategoryId === category.refCategoryId)
+    console.log('filtered', filtered)
+    setFilteredSubCategories(filtered)
+
+    setSelectedSubCategory(null)
+  }
 
   useEffect(() => {
     const countryStates: any = State.getStatesOfCountry('IN')
@@ -205,7 +240,49 @@ const Booking: React.FC = () => {
     if (storedUser) {
       setUser(JSON.parse(storedUser))
     }
+    getCategory()
+    getSubCategory()
   }, [])
+
+  const getCategory = () => {
+    axios
+      .get(import.meta.env.VITE_API_URL + '/Routes/getCategory', {
+        headers: { Authorization: localStorage.getItem('JWTtoken') }
+      })
+      .then((res) => {
+        const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
+        if (data.token) {
+          console.log('data line 62', data)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setCategories(data.Category)
+        } else {
+          navigate('/login')
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching vendor details:', error)
+      })
+  }
+
+  const getSubCategory = () => {
+    axios
+      .get(import.meta.env.VITE_API_URL + '/Routes/getSubCategory', {
+        headers: { Authorization: localStorage.getItem('JWTtoken') }
+      })
+      .then((res) => {
+        const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
+        if (data.token) {
+          console.log('data line 62-------', data)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setData(data.SubCategory)
+        } else {
+          navigate('/login')
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching vendor details:', error)
+      })
+  }
 
   const [vendors, setVendors] = useState<any[]>([])
   const [partners, setPartners] = useState<PartnerProps | null>(null)
@@ -266,10 +343,13 @@ const Booking: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data.partners', data.partners)
-        localStorage.setItem('JWTtoken', data.token)
-
-        setVendors(data.partners)
+        if (data.token) {
+          console.log('data.partners', data.partners)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setVendors(data.partners)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
@@ -280,10 +360,13 @@ const Booking: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data ======== ', data)
-        localStorage.setItem('JWTtoken', data.token)
-
-        setCustomersDetails(data.Customer)
+        if(data.token){
+          console.log('data ======== ', data)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setCustomersDetails(data.Customer)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
@@ -297,10 +380,13 @@ const Booking: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data.partners line 79', data)
-        localStorage.setItem('JWTtoken', data.token)
-
-        setParcelBookingData(data.data)
+        if(data.token){
+          console.log('data.partners line 79', data)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setParcelBookingData(data.data)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
@@ -308,6 +394,7 @@ const Booking: React.FC = () => {
   }
 
   const handlePayload = () => {
+    handlePdfDownload()
     const date = new Date()
     const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' }
     const formattedDate = date.toLocaleDateString('en-GB', options).replace(',', '')
@@ -355,105 +442,154 @@ const Booking: React.FC = () => {
       return
     }
 
-    if (partners?.partnersName === 'DTDC') {
-      axios
-        .post(
-          'https://dtdcapi.shipsy.io/api/customer/integration/consignment/softdata',
-          {
-            consignments: [
-              {
-                customer_code: 'EO1727',
-                service_type_id: 'B2C PRIORITY',
-                load_type: parcelType?.name,
-                description: 'test',
-                dimension_unit: 'cm',
-                length: length,
-                width: weight,
-                height: height,
-                weight_unit: 'kg',
-                weight: actualWeight,
-                declared_value: netAmoutn,
-                num_pieces: String(count),
-                origin_details: {
-                  name: consignersName,
-                  phone: consigerPhone,
-                  alternate_phone: consigerPhone,
-                  address_line_1: consignerAddress,
-                  address_line_2: consignerAddress,
-                  pincode: consignerPincode,
-                  city: consignorCity,
-                  state: consignorState
-                },
-                destination_details: {
-                  name: consigneName,
-                  phone: consigneePhone,
-                  alternate_phone: consigneePhone,
-                  address_line_1: consignerAddress,
-                  address_line_2: '',
-                  pincode: consigneePincode,
-                  city: consigneeCity,
-                  state: consigneeState
-                },
-                return_details: {
-                  address_line_1: consignerAddress,
-                  address_line_2: consignerAddress,
-                  city_name: consignorCity,
-                  name: consignersName,
-                  phone: consigerPhone,
-                  pincode: consignerPincode,
-                  state_name: consignorState,
-                  email: consigerEmail,
-                  alternate_phone: consigerPhone
-                },
-                customer_reference_number: selectedLeaf?.vendorLeaf,
-                cod_collection_mode: '1',
-                cod_amount: pickupCharge,
-                commodity_id: '99',
-                eway_bill: '',
-                is_risk_surcharge_applicable: false,
-                invoice_number: 'AB001',
-                invoice_date: formattedDate,
-                reference_number: ''
-              }
-            ]
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'api-key': '5dd8e4d35166672758bd1ee8953025'
-            }
-          }
-        )
-        .then((res) => {
-          if (res.data.status === 'OK') {
-            const result = res.data.data[0]
-            if (!result.success) {
-              toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: result.message,
-                life: 3000
-              })
-            } else {
-              toast.current?.show({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Consignment created successfully',
-                life: 3000
-              })
-            }
-          }
-        })
-        .catch((err) => {
-          toast.current?.show({
-            severity: 'error',
-            summary: 'Request Failed',
-            detail: err.message || 'Something went wrong',
-            life: 3000
-          })
-        })
-    } else if (partners?.partnersName === 'Delhivery') {
-    }
+    // if (partners?.partnersName === 'DTDC') {
+    //   axios
+    //     .post(
+    //       'https://dtdcapi.shipsy.io/api/customer/integration/consignment/softdata',
+    //       {
+    //         consignments: [
+    //           {
+    //             customer_code: 'EO1727',
+    //             service_type_id: 'B2C PRIORITY',
+    //             load_type: parcelType?.name,
+    //             description: 'test',
+    //             dimension_unit: 'cm',
+    //             length: length,
+    //             width: weight,
+    //             height: height,
+    //             weight_unit: 'kg',
+    //             weight: actualWeight,
+    //             declared_value: netAmoutn,
+    //             num_pieces: String(count),
+    //             origin_details: {
+    //               name: consignersName,
+    //               phone: consigerPhone,
+    //               alternate_phone: consigerPhone,
+    //               address_line_1: consignerAddress,
+    //               address_line_2: consignerAddress,
+    //               pincode: consignerPincode,
+    //               city: consignorCity,
+    //               state: consignorState
+    //             },
+    //             destination_details: {
+    //               name: consigneName,
+    //               phone: consigneePhone,
+    //               alternate_phone: consigneePhone,
+    //               address_line_1: consignerAddress,
+    //               address_line_2: '',
+    //               pincode: consigneePincode,
+    //               city: consigneeCity,
+    //               state: consigneeState
+    //             },
+    //             return_details: {
+    //               address_line_1: consignerAddress,
+    //               address_line_2: consignerAddress,
+    //               city_name: consignorCity,
+    //               name: consignersName,
+    //               phone: consigerPhone,
+    //               pincode: consignerPincode,
+    //               state_name: consignorState,
+    //               email: consigerEmail,
+    //               alternate_phone: consigerPhone
+    //             },
+    //             customer_reference_number: selectedLeaf?.vendorLeaf,
+    //             cod_collection_mode: '1',
+    //             cod_amount: pickupCharge,
+    //             commodity_id: '99',
+    //             eway_bill: '',
+    //             is_risk_surcharge_applicable: false,
+    //             invoice_number: 'AB001',
+    //             invoice_date: formattedDate,
+    //             reference_number: ''
+    //           }
+    //         ]
+    //       },
+    //       {
+    //         headers: {
+    //           'Content-Type': 'application/json',
+    //           'api-key': '5dd8e4d35166672758bd1ee8953025'
+    //         }
+    //       }
+    //     )
+    //     .then((res) => {
+    //       if (res.data.status === 'OK') {
+    //         const result = res.data.data[0]
+    //         if (!result.success) {
+    //           toast.current?.show({
+    //             severity: 'error',
+    //             summary: 'Error',
+    //             detail: result.message,
+    //             life: 3000
+    //           })
+    //         } else {
+    //           toast.current?.show({
+    //             severity: 'success',
+    //             summary: 'Success',
+    //             detail: 'Consignment created successfully',
+    //             life: 3000
+    //           })
+    //         }
+    //       }
+    //     })
+    //     .catch((err) => {
+    //       toast.current?.show({
+    //         severity: 'error',
+    //         summary: 'Request Failed',
+    //         detail: err.message || 'Something went wrong',
+    //         life: 3000
+    //       })
+    //     })
+    // } else if (partners?.partnersName === 'Delhivery') {
+    //   axios.post(
+    //     'https://track.delhivery.com/api/cmu/create.json',
+    //     {
+    //       pickup_location: {
+    //         add: consignerAddress + ', ' + consignorCity + ', ' + consignorState,
+    //         country: 'India',
+    //         pin: consignerPincode,
+    //         phone: consigerPhone,
+    //         city: consignorCity,
+    //         name: consignersName,
+    //         state: consignorState
+    //       },
+    //       shipments: [
+    //         {
+    //           country: 'India',
+    //           city: consigneeCity,
+    //           seller_add: '',
+    //           cod_amount: pickupCharge,
+    //           return_phone: consigneePhone,
+    //           seller_inv_date: '',
+    //           seller_name: '',
+    //           pin: consigneePincode,
+    //           seller_inv: '',
+    //           state: consigneeState,
+    //           return_name: consigneName,
+    //           order: '528324',
+    //           add: consigeeAddress + ', ' + consigneeCity + ', ' + consigneeState || '-',
+    //           payment_mode: 'Prepaid',
+    //           quantity: count,
+    //           return_add: consigeeAddress + ', ' + consigneeCity + ', ' + consigneeState || '-',
+    //           seller_cst: '',
+    //           seller_tin: '',
+    //           phone: consigneePhone,
+    //           total_amount: netAmoutn,
+    //           name: consigneName,
+    //           return_country: 'India',
+    //           return_city: consigneeCity,
+    //           return_state: consigneeState,
+    //           return_pin: consigneePincode
+    //         }
+    //       ]
+    //     },
+    //     {
+    //       headers: {
+    //         Accept: 'application/json',
+    //         Authorization: 'Token f4881f7518b05af9e0e3446b8b697c490dbef74f'
+    //       }
+    //     }
+    //   )
+    // }
 
     console.log('selectedCustomerDetails', selectedCustomerDetails)
     axios
@@ -461,6 +597,7 @@ const Booking: React.FC = () => {
         import.meta.env.VITE_API_URL + '/route/bookingTest',
         {
           partnersName: partners || '-',
+          leaf: selectedLeaf || '-',
           type: parcelType || '-',
           origin: 'Erode',
           destination: value || '-',
@@ -501,22 +638,27 @@ const Booking: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data', data)
-        localStorage.setItem('JWTtoken', data.token)
-        if (data.success) {
-          toast.current?.show({
-            severity: 'success',
-            summary: 'Order Placed',
-            detail: `Order Placed Successfully`
-          })
-          handlePdfDownload()
+        if (data.token) {
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+
+          if (data.success) {
+            toast.current?.show({
+              severity: 'success',
+              summary: 'Order Placed',
+              detail: `Order Placed Successfully`
+            })
+            handlePdfDownload()
+          } else {
+            toast.current?.show({
+              severity: 'warn',
+              summary: 'Error Occured',
+              detail: `${data.error}`
+            })
+          }
+          getPartners()
         } else {
-          toast.current?.show({
-            severity: 'warn',
-            summary: 'Error Occured',
-            detail: `${data.error}`
-          })
+          console.log('tesitng data === ')
         }
-        getPartners()
       })
       .catch((error) => console.error(error))
   }
@@ -539,17 +681,21 @@ const Booking: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get(import.meta.env.VITE_API_URL + '/routes/mapping', {
+      .get(import.meta.env.VITE_API_URL + '/routes/ListMappingLeaf', {
         headers: { Authorization: localStorage.getItem('JWTtoken') }
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data line 63 --------- ', data)
-        if (data.success) {
-          localStorage.setItem('JWTtoken', data.token)
-
+        if(data.token){
+          console.log('data line 63 --------- ', data)
+          if (data.success) {
+            localStorage.setItem('JWTtoken', 'Bearer ' + data.token)  
           console.log('data.success', data.success)
-          setCustomers(data.data)
+            setCustomers(data.data)
+          }
+        } else {
+          navigate('/login')
+
         }
       })
       .catch((error) => {
@@ -2329,6 +2475,38 @@ const Booking: React.FC = () => {
                   <InputNumber value={count} onChange={(e) => setCount(e.value)} />
                 </div>
               </div>
+
+              <div className="flex mt-5 gap-3 align-items-center justify-content-between">
+                <FloatLabel className="flex-1">
+                  <Dropdown
+                    value={selectedCategory}
+                    inputId="refCategoryId"
+                    onChange={handleCategoryChange}
+                    options={categories}
+                    optionLabel="refCategory"
+                    className="w-full"
+                    checkmark={true}
+                    name="category"
+                    highlightOnSelect={false}
+                  />
+                  <label htmlFor="refCategoryId">Select Category</label>
+                </FloatLabel>
+                <FloatLabel className="flex-1">
+                  <Dropdown
+                    value={selectedSubCategory}
+                    inputId="subcategoryId"
+                    onChange={(e) => setSelectedSubCategory(e.value)}
+                    options={filteredSubCategories}
+                    optionLabel="refSubCategory"
+                    className="w-full"
+                    name="subCategory"
+                    checkmark={true}
+                    highlightOnSelect={false}
+                    disabled={!selectedCategory}
+                  />
+                  <label htmlFor="subcategoryId">Select Sub Category</label>
+                </FloatLabel>
+              </div>
               <Divider />
 
               <div className="flex card justify-content-between">
@@ -2741,7 +2919,6 @@ const Booking: React.FC = () => {
                 className="w-full md:w-14rem "
                 placeholder="Net Amount"
                 value={netAmoutn}
-                disabled
                 onChange={(e) => setNetAmount(e.target.value)}
               />
               <InputText

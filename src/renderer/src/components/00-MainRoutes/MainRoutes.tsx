@@ -18,6 +18,7 @@ import Report from '../10-Report/Report'
 import TestingPDF from '../11-TestingPDF/TestingPDF'
 import ReportPDF from '../12-ReportPDF/ReportPDF'
 import Finance from '../13-Finance/Finance'
+import Cancellation from '../14-Cancellation/Cancellation'
 
 function PrivateRoute({ children }) {
   const userDetails = localStorage.getItem('userDetails')
@@ -107,6 +108,14 @@ const MainRoutes: React.FC = () => {
             element={
               <PrivateRoute>
                 <Finance />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/cancellation"
+            element={
+              <PrivateRoute>
+                <Cancellation />
               </PrivateRoute>
             }
           />

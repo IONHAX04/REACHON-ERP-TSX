@@ -12,6 +12,7 @@ import * as XLSX from 'xlsx'
 // import sampleExcel from '@/src/renderer/src/assets/excel/sample.xlsx'
 import axios from 'axios'
 import decrypt from '../../helper'
+import { useNavigate } from 'react-router-dom'
 
 interface SetJsonData {
   purchasedDate: string
@@ -29,6 +30,7 @@ const UploadExcelSidebar: React.FC<UploadExcelSidebarProps> = ({ setVisibleRight
   const [isDuplicateFound, setIsDuplicateFound] = useState(false)
   const toast = useRef<Toast>(null)
 
+  const navigate = useNavigate()
   const leftToolbarTemplate = () => (
     <div className="flex flex-wrap gap-2">
       <p>
@@ -175,26 +177,29 @@ const UploadExcelSidebar: React.FC<UploadExcelSidebarProps> = ({ setVisibleRight
         .then((res) => {
           const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
           console.log('data', data)
-          localStorage.setItem('JWTtoken', data.token)
-
-          if (data.success) {
-            toast.current?.show({
-              severity: 'success',
-              summary: 'Upload Successful',
-              detail: 'Data has been successfully uploaded.',
-              life: 3000
-            })
-            setTimeout(() => {
-              setVisibleRight(false)
-              resetUpload()
-            }, 3000)
+          if (data.token) {
+            localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+            if (data.success) {
+              toast.current?.show({
+                severity: 'success',
+                summary: 'Upload Successful',
+                detail: 'Data has been successfully uploaded.',
+                life: 3000
+              })
+              setTimeout(() => {
+                setVisibleRight(false)
+                resetUpload()
+              }, 3000)
+            } else {
+              toast.current?.show({
+                severity: 'error',
+                summary: 'Error Occured',
+                detail: data.message,
+                life: 3000
+              })
+            }
           } else {
-            toast.current?.show({
-              severity: 'error',
-              summary: 'Error Occured',
-              detail: data.message,
-              life: 3000
-            })
+            navigate('/login')
           }
         })
         .catch((error) => {

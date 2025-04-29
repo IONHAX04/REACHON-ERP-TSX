@@ -16,6 +16,7 @@ import axios from 'axios'
 import { TabPanel, TabView } from 'primereact/tabview'
 import PayrollStatus from '@renderer/pages/PayrollStatus/PayrollStatus'
 import PayrollAudit from '@renderer/pages/PayrollAudit/PayrollAudit'
+import { useNavigate } from 'react-router-dom'
 
 interface EmployeeDetailsProps {
   createdAt: string
@@ -61,6 +62,7 @@ interface UserDetails {
 }
 
 const Employees: React.FC = () => {
+  const navigate = useNavigate()
   const [employees, setEmployees] = useState<EmployeeDetailsProps[] | []>([])
 
   const [user, setUser] = useState<UserDetails>()
@@ -92,8 +94,12 @@ const Employees: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data line 62', data)
-        setEmployees(data.Employee)
+        if (data.token) {
+          console.log('data line 62', data)
+          setEmployees(data.Employee)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)

@@ -8,6 +8,7 @@ import { Divider } from 'primereact/divider'
 import axios from 'axios'
 import decrypt from '../../helper'
 import { FileJson, FolderOpen, LocateFixed, Phone, UsersRound } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 interface SetCustomer {
   id: number
@@ -38,6 +39,7 @@ const VendorSidebar: React.FC = () => {
   const [regularMode, setRegularMode] = useState(false)
   const [address, setAddress] = useState('')
   const [notes, setNotes] = useState('')
+  const navigate = useNavigate()
 
   const [checked, setChecked] = useState(false)
   console.log('checked', checked)
@@ -54,9 +56,12 @@ const VendorSidebar: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         console.log('data', data)
-        localStorage.setItem('JWTtoken', data.token)
-
-        setCustomersDetails(data.Customer)
+        if (data.token) {
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setCustomersDetails(data.Customer)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
@@ -180,10 +185,13 @@ const VendorSidebar: React.FC = () => {
           )
           .then((res) => {
             const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-            if (data.success) {
-              localStorage.setItem('JWTtoken', data.token)
-
-              getPartners()
+            if (data.token) {
+              if (data.success) {
+                localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+                getPartners()
+              }
+            } else {
+              navigate('/login')
             }
           })
           .catch((error) => {

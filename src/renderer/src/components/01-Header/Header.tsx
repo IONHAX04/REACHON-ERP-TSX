@@ -14,6 +14,7 @@ import {
   Menu,
   Package,
   ReceiptIndianRupee,
+  RouteOff,
   Truck,
   UserRoundPlus
 } from 'lucide-react'
@@ -47,6 +48,11 @@ const routes = [
     path: '/tracking',
     name: 'Tracking',
     icon: <Truck />
+  },
+  {
+    path: '/cancellation',
+    name: 'Cancellation',
+    icon: <RouteOff />
   },
   {
     path: '/finance',
@@ -91,6 +97,11 @@ const adminRoutes = [
     path: '/tracking',
     name: 'Tracking',
     icon: <Truck />
+  },
+  {
+    path: '/cancellation',
+    name: 'Cancellation',
+    icon: <RouteOff />
   },
   {
     path: '/finance',
@@ -164,6 +175,11 @@ const employeeRoutes = [
     path: '/tracking',
     name: 'Tracking',
     icon: <Truck />
+  },
+  {
+    path: '/cancellation',
+    name: 'Cancellation',
+    icon: <RouteOff />
   },
   {
     path: '/login',
@@ -240,6 +256,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
   }
 
   const handleLogout = () => {
+    localStorage.removeItem('JWTtoken')
     localStorage.removeItem('loginStatus')
     localStorage.removeItem('rememberMe')
     localStorage.removeItem('userDetails')

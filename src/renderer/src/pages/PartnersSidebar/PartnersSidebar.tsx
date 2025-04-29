@@ -5,8 +5,10 @@ import { Button } from 'primereact/button'
 import { InputText } from 'primereact/inputtext'
 import axios from 'axios'
 import decrypt from '../../helper'
+import { useNavigate } from 'react-router-dom'
 
 const PartnersSidebar: React.FC = () => {
+  const navigate = useNavigate()
   const [partnerDetails, setPartnerDetails] = useState([])
   const [showInputSection, setShowInputSection] = useState(false)
   const [partners, setPartners] = useState('')
@@ -25,10 +27,13 @@ const PartnersSidebar: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data', data)
-        setPartnerDetails(data.partners)
-        localStorage.setItem('JWTtoken', data.token)
-
+        if (data.token) {
+          console.log('data', data)
+          setPartnerDetails(data.partners)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)

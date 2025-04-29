@@ -17,6 +17,7 @@ import UploadExcelSidebar from '../../pages/UploadExcelSidebar/UploadExcelSideba
 import axios from 'axios'
 import decrypt from '../../helper'
 import { Nullable } from 'primereact/ts-helpers'
+import { useNavigate } from 'react-router-dom'
 
 interface Customer {
   id: number
@@ -54,6 +55,7 @@ const Key: React.FC = () => {
   const toast = useRef<Toast>(null)
   const [user, setUser] = useState<UserDetails>()
   const [loading, setLoading] = useState<boolean>(true)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const storedUser = localStorage.getItem('userDetails')
@@ -84,9 +86,13 @@ const Key: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data', data)
-        localStorage.setItem('JWTtoken', data.token)
-        setVendors(data.partners)
+        if (data.token) {
+          console.log('data', data)
+          localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+          setVendors(data.partners)
+        } else {
+          navigate('/login')
+        }
       })
       .catch((error) => {
         console.error('Error fetching vendor details:', error)
@@ -110,12 +116,15 @@ const Key: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        console.log('data line 63 --------- ', data)
-        if (data.success) {
-          localStorage.setItem('JWTtoken', data.token)
-
-          setCustomers(data.data)
-          setFilteredCustomers(data.data)
+        if (data.token) {
+          console.log('data line 63 --------- ', data)
+          if (data.success) {
+            localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+            setCustomers(data.data)
+            setFilteredCustomers(data.data)
+          }
+        } else {
+          navigate('/login')
         }
       })
       .catch((error) => {

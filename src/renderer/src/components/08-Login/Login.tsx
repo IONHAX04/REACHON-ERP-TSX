@@ -8,8 +8,8 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
-// import logoImg from '../../assets/imageLogo.png'
-import logoImg from '../../assets/Logo/LOGO.png'
+import logoImg from '../../assets/imageLogo.png'
+// import logoImg from '../../assets/Logo/LOGO.png'
 
 import decrypt from '@renderer/helper'
 

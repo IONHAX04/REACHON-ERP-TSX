@@ -3,7 +3,6 @@ import { RadioButton } from 'primereact/radiobutton'
 import { InputText } from 'primereact/inputtext'
 import { Truck } from 'lucide-react'
 import axios from 'axios'
-import decrypt from '@renderer/helper'
 
 interface UserDetails {
   refUserId: number
@@ -59,47 +58,6 @@ const Tracking: React.FC = () => {
     }
   }
 
-  const checkingApi = async () => {
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + '/Employee/checkApi',
-        {
-          amount: 0,
-          currency: 'CHF',
-          successRedirectUrl: 'https://your-success-url.com',
-          failedRedirectUrl: 'https://your-failed-url.com',
-          purpose: 'Test Payment'
-        },
-        {
-          headers: {
-            Authorization: 'vqdTdCezHYCNEzgFcRsPz4PwvYvZPV',
-            'Content-Type': 'application/json'
-          }
-        }
-      )
-
-      const decryptedData = decrypt(
-        response.data[1], // Assuming response.data[1] is the encrypted data
-        response.data[0], // Assuming response.data[0] is the key or IV
-        import.meta.env.VITE_ENCRYPTION_KEY
-      )
-
-      if (decryptedData.success) {
-        console.log('decryptedData', decryptedData)
-        const paymentLink = decryptedData.data[0]?.link
-        if (paymentLink) {
-          window.location.href = paymentLink // Redirect to Payrexx payment page
-        } else {
-          alert('Payment link not found.')
-        }
-      } else {
-        alert('Payment creation failed: ' + decryptedData.message)
-      }
-    } catch (error) {
-      console.error('Error while tracking:', error)
-      alert('Error while tracking. Please try again.')
-    }
-  }
 
   return (
     <div>

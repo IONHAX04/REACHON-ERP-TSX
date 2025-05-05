@@ -7,6 +7,18 @@ import axios from 'axios'
 import decrypt from '../../helper'
 import { useNavigate } from 'react-router-dom'
 
+interface PartnersProps {
+  createdAt: string
+  createdBy: string
+  deletedAt: string
+  deletedBy: string
+  isDelete: boolean
+  partnersId: number
+  partnersName: string
+  phoneNumber: string
+  validity: string
+}
+
 const PartnersSidebar: React.FC = () => {
   const navigate = useNavigate()
   const [partnerDetails, setPartnerDetails] = useState([])
@@ -14,7 +26,7 @@ const PartnersSidebar: React.FC = () => {
   const [partners, setPartners] = useState('')
   const [contactDetails, setContactDetails] = useState('')
   const [validity, setValidity] = useState('')
-  const [editingPartner, setEditingPartner] = useState(null)
+  const [editingPartner, setEditingPartner] = useState<PartnersProps | null>(null)
 
   useEffect(() => {
     getPartners()
@@ -40,29 +52,36 @@ const PartnersSidebar: React.FC = () => {
       })
   }
 
-  // const handleEdit = (partner) => {
-  //   setPartners(partner.partnersName)
-  //   setContactDetails(partner.phoneNumber)
-  //   setValidity(partner.validity)
-  //   setEditingPartner(partner)
-  //   setShowInputSection(true)
-  // }
+  const handleEdit = (partner) => {
+    setPartners(partner.partnersName)
+    setContactDetails(partner.phoneNumber)
+    setValidity(partner.validity)
+    setEditingPartner(partner)
+    setShowInputSection(true)
+  }
 
   const addOrUpdatePartner = () => {
+    console.log('partnerDetails', editingPartner)
     if (partners.trim()) {
       axios
         .post(
-          import.meta.env.VITE_API_URL + '/Routes/addPartners',
+          import.meta.env.VITE_API_URL + '/updateRoutes/updatePartners',
           {
             partnersName: partners,
-            validityDate: validity,
-            mobileNumber: contactDetails
+            validity: validity,
+            phoneNumber: contactDetails,
+            partnerId: editingPartner?.partnersId
           },
           {
             headers: { Authorization: localStorage.getItem('JWTtoken') }
           }
         )
-        .then(() => getPartners())
+        .then((res) => {
+          const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
+          if (data.success) {
+            getPartners()
+          }
+        })
         .catch((error) => console.error(error))
 
       setPartners('')
@@ -75,21 +94,12 @@ const PartnersSidebar: React.FC = () => {
 
   const header = (
     <>
-      {/* <div className="flex flex-wrap gap-2 align-items-center justify-content-end">
-        <Button
-          label="Add"
-          severity="success"
-          onClick={() => {
-            setEditingPartner(null)
-            setShowInputSection(!showInputSection)
-          }}
-        />
-      </div> */}
       {showInputSection && (
         <div className="flex mt-3 gap-2">
           <InputText
             placeholder="Partners"
             value={partners}
+            disabled
             onChange={(e) => setPartners(e.target.value)}
           />
           <InputText
@@ -113,16 +123,16 @@ const PartnersSidebar: React.FC = () => {
     </>
   )
 
-  // const _actionTemplate = (rowData) => (
-  //   <Button
-  //     rounded
-  //     outlined
-  //     text
-  //     severity="info"
-  //     icon="pi pi-pencil"
-  //     onClick={() => handleEdit(rowData)}
-  //   />
-  // )
+  const actionTemplate = (rowData) => (
+    <Button
+      rounded
+      outlined
+      text
+      severity="info"
+      icon="pi pi-pencil"
+      onClick={() => handleEdit(rowData)}
+    />
+  )
   return (
     <div>
       <div>
@@ -132,7 +142,7 @@ const PartnersSidebar: React.FC = () => {
           <Column field="partnersName" header="Partners"></Column>
           <Column field="phoneNumber" header="Contact"></Column>
           <Column field="validity" header="Validity"></Column>
-          {/* <Column field="edit" header="Actions" body={actionTemplate}></Column> */}
+          <Column field="edit" header="Actions" body={actionTemplate}></Column>
         </DataTable>
       </div>
     </div>

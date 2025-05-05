@@ -93,7 +93,7 @@ const Finance: React.FC = () => {
         if (data.token) {
           console.log('data line 33 ======== ', data)
           localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
-          setProducts(data.data)
+          // setProducts(data.data)
         } else {
           navigate('/login')
         }
@@ -159,7 +159,7 @@ const Finance: React.FC = () => {
         }
       ]
       console.log('staticData', staticData)
-      // setProducts(staticData)
+      setProducts(staticData)
     }
   }, [])
 

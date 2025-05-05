@@ -360,7 +360,7 @@ const Booking: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        if(data.token){
+        if (data.token) {
           console.log('data ======== ', data)
           localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
           setCustomersDetails(data.Customer)
@@ -380,7 +380,7 @@ const Booking: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        if(data.token){
+        if (data.token) {
           console.log('data.partners line 79', data)
           localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
           setParcelBookingData(data.data)
@@ -398,6 +398,7 @@ const Booking: React.FC = () => {
     const date = new Date()
     const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' }
     const formattedDate = date.toLocaleDateString('en-GB', options).replace(',', '')
+    console.log('formattedDate', formattedDate)
 
     console.log('vendor name:', selectedLeaf)
 
@@ -686,16 +687,15 @@ const Booking: React.FC = () => {
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
-        if(data.token){
+        if (data.token) {
           console.log('data line 63 --------- ', data)
           if (data.success) {
-            localStorage.setItem('JWTtoken', 'Bearer ' + data.token)  
-          console.log('data.success', data.success)
+            localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
+            console.log('data.success', data.success)
             setCustomers(data.data)
           }
         } else {
           navigate('/login')
-
         }
       })
       .catch((error) => {

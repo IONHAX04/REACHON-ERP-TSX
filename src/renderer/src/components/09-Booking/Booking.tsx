@@ -394,7 +394,6 @@ const Booking: React.FC = () => {
   }
 
   const handlePayload = () => {
-    handlePdfDownload()
     const date = new Date()
     const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' }
     const formattedDate = date.toLocaleDateString('en-GB', options).replace(',', '')

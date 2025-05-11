@@ -115,6 +115,7 @@ const VendorSidebar: React.FC = () => {
               customerCode: code,
               customerType: regularMode,
               notes: notes,
+              email: email,
               refAddress: address,
               refPhone: phone
             },
@@ -319,15 +320,44 @@ const VendorSidebar: React.FC = () => {
     setIsEditable(true)
   }
 
+  const handleDelete = (refCustomerId: number) => {
+    console.log('refCustomerId', refCustomerId)
+    axios
+      .post(
+        import.meta.env.VITE_API_URL + '/updateRoutes/deleteCustomers',
+        { refCustomerId: refCustomerId },
+        {
+          headers: { Authorization: localStorage.getItem('JWTtoken') }
+        }
+      )
+      .then((res) => {
+        const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
+        if (data.success) {
+          getPartners()
+        }
+      })
+      .catch((error) => console.error('Error deleting partner:', error))
+  }
+
   const actionTemplate = (rowData) => (
-    <Button
-      rounded
-      outlined
-      text
-      severity="info"
-      icon="pi pi-pencil"
-      onClick={() => handleEdit(rowData)}
-    />
+    <div className="flex gap-2">
+      <Button
+        rounded
+        outlined
+        text
+        severity="info"
+        icon="pi pi-pencil"
+        onClick={() => handleEdit(rowData)}
+      />
+      <Button
+        rounded
+        outlined
+        text
+        severity="danger"
+        icon="pi pi-trash"
+        onClick={() => handleDelete(rowData.refCustomerId)}
+      />
+    </div>
   )
   return (
     <div>

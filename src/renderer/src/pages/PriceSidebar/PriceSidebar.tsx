@@ -190,6 +190,50 @@ const PriceSidebar: React.FC = () => {
     setHeight('')
   }
 
+  const handleEdit = (partner) => {
+    console.log('partner', partner)
+  }
+
+  const handleDelete = (refCustomerId: number) => {
+    console.log('refCustomerId', refCustomerId)
+    axios
+      .post(
+        import.meta.env.VITE_API_URL + '/updateRoutes/deleteCustomers',
+        { refCustomerId: refCustomerId },
+        {
+          headers: { Authorization: localStorage.getItem('JWTtoken') }
+        }
+      )
+      .then((res) => {
+        const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
+        if (data.success) {
+          getPartners()
+        }
+      })
+      .catch((error) => console.error('Error deleting partner:', error))
+  }
+
+  const actionTemplate = (rowData) => (
+    <div className="flex gap-2">
+      <Button
+        rounded
+        outlined
+        text
+        severity="info"
+        icon="pi pi-pencil"
+        onClick={() => handleEdit(rowData)}
+      />
+      <Button
+        rounded
+        outlined
+        text
+        severity="danger"
+        icon="pi pi-trash"
+        onClick={() => handleDelete(rowData.refCustomerId)}
+      />
+    </div>
+  )
+
   const filteredProducts = selectedPartners.length
     ? products.filter((p) => selectedPartners.some((sp) => sp.partnersName === p.partnersName))
     : products
@@ -398,6 +442,7 @@ const PriceSidebar: React.FC = () => {
             style={{ width: '5rem' }}
             body={(rowData) => rowData.refHeight || '-'}
           />
+          <Column field="edit" header="Actions" body={actionTemplate}></Column>
         </DataTable>
       </div>
     </div>

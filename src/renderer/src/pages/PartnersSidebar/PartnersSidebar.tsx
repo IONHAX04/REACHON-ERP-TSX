@@ -122,16 +122,43 @@ const PartnersSidebar: React.FC = () => {
       )}
     </>
   )
+  const handleDelete = (partnerId: number) => {
+    axios
+      .post(
+        import.meta.env.VITE_API_URL + '/updateRoutes/deletePartners',
+        { partnerId: partnerId },
+        {
+          headers: { Authorization: localStorage.getItem('JWTtoken') }
+        }
+      )
+      .then((res) => {
+        const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
+        if (data.success) {
+          getPartners()
+        }
+      })
+      .catch((error) => console.error('Error deleting partner:', error))
+  }
 
   const actionTemplate = (rowData) => (
-    <Button
-      rounded
-      outlined
-      text
-      severity="info"
-      icon="pi pi-pencil"
-      onClick={() => handleEdit(rowData)}
-    />
+    <div className="flex gap-2">
+      <Button
+        rounded
+        outlined
+        text
+        severity="info"
+        icon="pi pi-pencil"
+        onClick={() => handleEdit(rowData)}
+      />
+      <Button
+        rounded
+        outlined
+        text
+        severity="danger"
+        icon="pi pi-trash"
+        onClick={() => handleDelete(rowData.partnersId)}
+      />
+    </div>
   )
   return (
     <div>

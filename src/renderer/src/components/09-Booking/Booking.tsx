@@ -442,155 +442,6 @@ const Booking: React.FC = () => {
       return
     }
 
-    // if (partners?.partnersName === 'DTDC') {
-    //   axios
-    //     .post(
-    //       'https://dtdcapi.shipsy.io/api/customer/integration/consignment/softdata',
-    //       {
-    //         consignments: [
-    //           {
-    //             customer_code: 'EO1727',
-    //             service_type_id: 'B2C PRIORITY',
-    //             load_type: parcelType?.name,
-    //             description: 'test',
-    //             dimension_unit: 'cm',
-    //             length: length,
-    //             width: weight,
-    //             height: height,
-    //             weight_unit: 'kg',
-    //             weight: actualWeight,
-    //             declared_value: netAmoutn,
-    //             num_pieces: String(count),
-    //             origin_details: {
-    //               name: consignersName,
-    //               phone: consigerPhone,
-    //               alternate_phone: consigerPhone,
-    //               address_line_1: consignerAddress,
-    //               address_line_2: consignerAddress,
-    //               pincode: consignerPincode,
-    //               city: consignorCity,
-    //               state: consignorState
-    //             },
-    //             destination_details: {
-    //               name: consigneName,
-    //               phone: consigneePhone,
-    //               alternate_phone: consigneePhone,
-    //               address_line_1: consignerAddress,
-    //               address_line_2: '',
-    //               pincode: consigneePincode,
-    //               city: consigneeCity,
-    //               state: consigneeState
-    //             },
-    //             return_details: {
-    //               address_line_1: consignerAddress,
-    //               address_line_2: consignerAddress,
-    //               city_name: consignorCity,
-    //               name: consignersName,
-    //               phone: consigerPhone,
-    //               pincode: consignerPincode,
-    //               state_name: consignorState,
-    //               email: consigerEmail,
-    //               alternate_phone: consigerPhone
-    //             },
-    //             customer_reference_number: selectedLeaf?.vendorLeaf,
-    //             cod_collection_mode: '1',
-    //             cod_amount: pickupCharge,
-    //             commodity_id: '99',
-    //             eway_bill: '',
-    //             is_risk_surcharge_applicable: false,
-    //             invoice_number: 'AB001',
-    //             invoice_date: formattedDate,
-    //             reference_number: ''
-    //           }
-    //         ]
-    //       },
-    //       {
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //           'api-key': '5dd8e4d35166672758bd1ee8953025'
-    //         }
-    //       }
-    //     )
-    //     .then((res) => {
-    //       if (res.data.status === 'OK') {
-    //         const result = res.data.data[0]
-    //         if (!result.success) {
-    //           toast.current?.show({
-    //             severity: 'error',
-    //             summary: 'Error',
-    //             detail: result.message,
-    //             life: 3000
-    //           })
-    //         } else {
-    //           toast.current?.show({
-    //             severity: 'success',
-    //             summary: 'Success',
-    //             detail: 'Consignment created successfully',
-    //             life: 3000
-    //           })
-    //         }
-    //       }
-    //     })
-    //     .catch((err) => {
-    //       toast.current?.show({
-    //         severity: 'error',
-    //         summary: 'Request Failed',
-    //         detail: err.message || 'Something went wrong',
-    //         life: 3000
-    //       })
-    //     })
-    // } else if (partners?.partnersName === 'Delhivery') {
-    //   axios.post(
-    //     'https://track.delhivery.com/api/cmu/create.json',
-    //     {
-    //       pickup_location: {
-    //         add: consignerAddress + ', ' + consignorCity + ', ' + consignorState,
-    //         country: 'India',
-    //         pin: consignerPincode,
-    //         phone: consigerPhone,
-    //         city: consignorCity,
-    //         name: consignersName,
-    //         state: consignorState
-    //       },
-    //       shipments: [
-    //         {
-    //           country: 'India',
-    //           city: consigneeCity,
-    //           seller_add: '',
-    //           cod_amount: pickupCharge,
-    //           return_phone: consigneePhone,
-    //           seller_inv_date: '',
-    //           seller_name: '',
-    //           pin: consigneePincode,
-    //           seller_inv: '',
-    //           state: consigneeState,
-    //           return_name: consigneName,
-    //           order: '528324',
-    //           add: consigeeAddress + ', ' + consigneeCity + ', ' + consigneeState || '-',
-    //           payment_mode: 'Prepaid',
-    //           quantity: count,
-    //           return_add: consigeeAddress + ', ' + consigneeCity + ', ' + consigneeState || '-',
-    //           seller_cst: '',
-    //           seller_tin: '',
-    //           phone: consigneePhone,
-    //           total_amount: netAmoutn,
-    //           name: consigneName,
-    //           return_country: 'India',
-    //           return_city: consigneeCity,
-    //           return_state: consigneeState,
-    //           return_pin: consigneePincode
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       headers: {
-    //         Accept: 'application/json',
-    //         Authorization: 'Token f4881f7518b05af9e0e3446b8b697c490dbef74f'
-    //       }
-    //     }
-    //   )
-    // }
-
     console.log('selectedCustomerDetails', selectedCustomerDetails)
     axios
       .post(
@@ -2456,10 +2307,11 @@ const Booking: React.FC = () => {
                     value={selectedCustomerDetails}
                     inputId="partnerDropDown"
                     onChange={(e) => setSelectedCustomerDetails(e.value)}
-                    options={customerDetails}
+                    options={customerDetails.filter(
+                      (item) => item.refCustomerType === customerMode
+                    )}
                     optionLabel="refCustomerName"
                     className="w-full md:w-14rem"
-                    disabled={!customerMode}
                     checkmark={true}
                     highlightOnSelect={false}
                   />

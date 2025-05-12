@@ -401,6 +401,7 @@ const Booking: React.FC = () => {
 
     console.log('vendor name:', selectedLeaf)
 
+    console.log('partners', partners?.partnersName)
     const requiredFields = [
       { label: 'Partner Name', value: partners },
       { label: 'Parcel Type', value: parcelType },
@@ -443,10 +444,129 @@ const Booking: React.FC = () => {
     }
 
     console.log('selectedCustomerDetails', selectedCustomerDetails)
+    let payload = {}
+
+    if (partners?.partnersName === 'DTDC') {
+      payload = {
+        consignments: [
+          {
+            customer_code: 'EO1727',
+            service_type_id: 'B2C PRIORITY',
+            load_type: parcelType?.name,
+            description: 'parcel booking',
+            dimension_unit: 'cm',
+            length: weight || '1.0',
+            width: breadth || '1.0',
+            height: height || '1.0',
+            weight_unit: 'kg',
+            weight: actualWeight,
+            declared_value: declaredValue,
+            num_pieces: numberOfPieces,
+            origin_details: {
+              name: consignersName,
+              phone: consigerPhone,
+              alternate_phone: consigerPhone,
+              address_line_1:
+                consignerAddress + ', ' + consignorCity + ', ' + consignorState || '-',
+              address_line_2: '',
+              pincode: consignerPincode,
+              city: consignorCity,
+              state: consignorState
+            },
+            destination_details: {
+              name: consigneName,
+              phone: consigneePhone,
+              alternate_phone: consigneePhone,
+              address_line_1: consigeeAddress + ', ' + consigneeCity + ', ' + consigneeState || '-',
+              address_line_2: '',
+              pincode: consigneePincode,
+              city: consigneeCity,
+              state: consigneeState
+            },
+            return_details: {
+              address_line_1:
+                consignerAddress + ', ' + consignorCity + ', ' + consignorState || '-',
+
+              address_line_2:
+                consignerAddress + ', ' + consignorCity + ', ' + consignorState || '-',
+
+              city_name: consignorCity,
+              name: consignersName,
+              phone: consigerPhone,
+              pincode: consignerPincode,
+              state_name: consignorState,
+              email: consigerEmail,
+              alternate_phone: consigerPhone
+            },
+            customer_reference_number: consigeeRefNumber,
+            cod_collection_mode: 'CASH',
+            cod_amount: pickupCharge,
+            commodity_id: '99',
+            eway_bill: selectedLeaf,
+            is_risk_surcharge_applicable: 'false',
+            invoice_date: formattedDate,
+            reference_number: '',
+            pieces_detail: [
+              {
+                description: 'Product',
+                declared_value: declaredValue,
+                weight: actualWeight,
+                height: height || '1',
+                length: weight || '1',
+                width: breadth || '1'
+              }
+            ]
+          }
+        ]
+      }
+    } else if (partners?.partnersName === 'Delhivery') {
+      payload = {
+        pickup_location: {
+          add: consignerAddress + ', ' + consignorCity + ', ' + consignorState || '-',
+          country: 'India',
+          pin: consignerPincode,
+          phone: consigerPhone,
+          city: consignorCity,
+          name: consignersName,
+          state: consignorState
+        },
+        shipments: [
+          {
+            country: 'India',
+            city: consigneeCity,
+            seller_add: '',
+            cod_amount: pickupCharge,
+            return_phone: consigerPhone,
+            seller_inv_date: formattedDate,
+            seller_name: '',
+            pin: consignerPincode,
+            seller_inv: '',
+            state: consigneeState,
+            return_name: consignersName,
+            add: consigeeAddress + ', ' + consigneeCity + ', ' + consigneeState || '-',
+            payment_mode: 'Prepaid',
+            quantity: numberOfPieces,
+            return_add: consigeeAddress + ', ' + consigneeCity + ', ' + consigneeState || '-',
+            seller_cst: '',
+            seller_tin: '',
+            phone: consigneePhone,
+            total_amount: netAmoutn,
+            name: consigneName,
+            return_country: 'India',
+            return_city: consignorCity,
+            return_state: consignorState,
+            return_pin: consignerPincode
+          }
+        ]
+      }
+    }
+
     axios
       .post(
         import.meta.env.VITE_API_URL + '/route/bookingTest',
         {
+          payload,
+          vendor: partners?.partnersName,
           partnersName: partners || '-',
           leaf: selectedLeaf || '-',
           type: parcelType || '-',
@@ -471,11 +591,14 @@ const Booking: React.FC = () => {
           dimension: checked || '-',
           height: height || '-',
           weight: weight || '-',
+          selectedCustomerDetails: selectedCustomerDetails,
+          refCustomerId: selectedCustomerDetails?.refCustomerId,
+          refCustomerName: selectedCustomerDetails?.refCustomerName,
+          refCode: selectedCustomerDetails?.refCode,
           breadth: breadth || '-',
           chargedWeight: chargedWeight || '-',
           paymentId: 1,
           customerType: true,
-          refCustomerId: selectedCustomerDetails?.refCustomerId,
           netAmount: netAmoutn,
           pickUP: pickupCharge,
           count: count,
@@ -503,7 +626,7 @@ const Booking: React.FC = () => {
             toast.current?.show({
               severity: 'warn',
               summary: 'Error Occured',
-              detail: `${data.error}`
+              detail: `${data.message.rmk || data.message.message}`
             })
           }
           getPartners()
@@ -2394,7 +2517,15 @@ const Booking: React.FC = () => {
                         <InputText
                           placeholder="Consignor's Pincode"
                           value={consignerPincode}
-                          onChange={(e) => setConsigerPincode(e.target.value)}
+                          onChange={(e) => {
+                            const input = e.target.value
+
+                            if (/^\d{0,6}$/.test(input)) {
+                              setConsigerPincode(input)
+                            }
+                          }}
+                          keyfilter="pint"
+                          maxLength={6}
                         />
                       </div>
                       <div className="p-inputgroup flex-1">
@@ -2529,7 +2660,15 @@ const Booking: React.FC = () => {
                       <InputText
                         placeholder="Consignee's Pincode"
                         value={consigneePincode}
-                        onChange={(e) => setConsigneePincode(e.target.value)}
+                        onChange={(e) => {
+                          const input = e.target.value
+
+                          if (/^\d{0,6}$/.test(input)) {
+                            setConsigneePincode(input)
+                          }
+                        }}
+                        keyfilter="pint"
+                        maxLength={6}
                       />
                     </div>
                     <div className="p-inputgroup flex-1">

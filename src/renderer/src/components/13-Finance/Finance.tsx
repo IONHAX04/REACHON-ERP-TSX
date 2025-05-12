@@ -85,15 +85,15 @@ const Finance: React.FC = () => {
 
   const getFinanceDetails = () => {
     axios
-      .get(import.meta.env.VITE_API_URL + '/route/listFinance', {
+      .get(import.meta.env.VITE_API_URL + '/Finance/viewFinance', {
         headers: { Authorization: localStorage.getItem('JWTtoken') }
       })
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         if (data.token) {
-          console.log('data line 33 ======== ', data)
+          console.log('data line 94 ============== > ', data)
           localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
-          // setProducts(data.data)
+          setProducts(data.data)
         } else {
           navigate('/login')
         }
@@ -105,62 +105,6 @@ const Finance: React.FC = () => {
 
   useEffect(() => {
     getFinanceDetails()
-  }, [])
-  useEffect(() => {
-    const storedData = localStorage.getItem('balanceStaticData')
-    if (storedData) {
-      setProducts(JSON.parse(storedData))
-    } else {
-      const staticData = [
-        {
-          id: '1',
-          code: '1',
-          name: 'Lakshmi Super Market',
-          invoice: 'INV1000',
-          outstanding: 12000,
-          payAmount: '',
-          balance: 12000 // Initial balance equals outstanding
-        },
-        {
-          id: '2',
-          code: '2',
-          name: 'SKM Shop',
-          invoice: 'INV1001',
-          outstanding: 8500,
-          payAmount: '',
-          balance: 8500
-        },
-        {
-          id: '3',
-          code: '3',
-          name: 'SCM Shop',
-          invoice: 'INV1002',
-          outstanding: 13000,
-          payAmount: '',
-          balance: 13000
-        },
-        {
-          id: '4',
-          code: '4',
-          name: 'Valli Exports',
-          invoice: 'INV1003',
-          outstanding: 9500,
-          payAmount: '',
-          balance: 9500
-        },
-        {
-          id: '5',
-          code: '5',
-          name: 'Ram Textiles',
-          invoice: 'INV1004',
-          outstanding: 11000,
-          payAmount: '',
-          balance: 11000
-        }
-      ]
-      console.log('staticData', staticData)
-      setProducts(staticData)
-    }
   }, [])
 
   // Handle Pay Amount Change

@@ -93,7 +93,7 @@ const Finance: React.FC = () => {
         if (data.token) {
           console.log('data line 94 ============== > ', data)
           localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
-          setProducts(data.data)
+          setProducts(data.result)
         } else {
           navigate('/login')
         }

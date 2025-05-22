@@ -14,7 +14,7 @@ import {
   Menu,
   Package,
   ReceiptIndianRupee,
-  RouteOff,
+  // RouteOff,
   Truck,
   UserRoundPlus
 } from 'lucide-react'
@@ -49,11 +49,11 @@ const routes = [
     name: 'Tracking',
     icon: <Truck />
   },
-  {
-    path: '/cancellation',
-    name: 'Cancellation',
-    icon: <RouteOff />
-  },
+  // {
+  //   path: '/cancellation',
+  //   name: 'Cancellation',
+  //   icon: <RouteOff />
+  // },
   {
     path: '/finance',
     name: 'Finance',
@@ -98,11 +98,11 @@ const adminRoutes = [
     name: 'Tracking',
     icon: <Truck />
   },
-  {
-    path: '/cancellation',
-    name: 'Cancellation',
-    icon: <RouteOff />
-  },
+  // {
+  //   path: '/cancellation',
+  //   name: 'Cancellation',
+  //   icon: <RouteOff />
+  // },
   {
     path: '/finance',
     name: 'Finance',
@@ -176,11 +176,11 @@ const employeeRoutes = [
     name: 'Tracking',
     icon: <Truck />
   },
-  {
-    path: '/cancellation',
-    name: 'Cancellation',
-    icon: <RouteOff />
-  },
+  // {
+  //   path: '/cancellation',
+  //   name: 'Cancellation',
+  //   icon: <RouteOff />
+  // },
   {
     path: '/login',
     name: 'Logout',

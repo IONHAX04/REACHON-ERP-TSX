@@ -123,7 +123,7 @@ const Dashboard: React.FC = () => {
                     </p>
                     <Divider layout="vertical" />
                     <p>
-                      <span>Mobile </span>: +91 9360257667
+                      <span>Mobile </span>: +91 {user?.refCustMobileNum}
                     </p>
                   </div>
                 </div>

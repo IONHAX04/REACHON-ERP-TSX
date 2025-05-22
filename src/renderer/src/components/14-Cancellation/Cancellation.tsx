@@ -184,7 +184,7 @@ const Cancellation: React.FC = () => {
             onClick={fetchTrackingStatus}
             disabled={!trackingNumber || !selectedOption}
           >
-            Track
+            Cancel Order
           </button>
         </div>
       </div>

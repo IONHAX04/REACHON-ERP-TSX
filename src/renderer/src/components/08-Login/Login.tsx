@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { classNames } from 'primereact/utils'
 import { Button } from 'primereact/button'
 import { Password } from 'primereact/password'
@@ -18,6 +18,17 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('')
   const toast = useRef<Toast>(null)
   const navigate = useNavigate()
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (dialogRef.current) {
+      const el = dialogRef.current
+      el.style.setProperty('background-color', 'white', 'important')
+      el.style.setProperty('border-radius', '12px', 'important')
+      el.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.3)', 'important')
+      el.style.setProperty('box-shadow', '0 4px 30px rgba(0, 0, 0, 0.1)', 'important')
+    }
+  }, [dialogRef.current])
 
   const containerClassName = classNames(
     'surface-ground flex align-items-center justify-content-center overflow-hidden'
@@ -101,9 +112,7 @@ const Login: React.FC = () => {
           <div
             className="flex flex-column align-items-center p-5 surface-overlay border-round"
             style={{ width: '400px', maxWidth: '100%' }}
-            ref={(el) => {
-              if (el) el.style.setProperty('background-color', 'white', 'important')
-            }}
+            ref={dialogRef}
           >
             <div className="border-circle bg-primary inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
               <i className="pi pi-check text-5xl"></i>
@@ -134,23 +143,18 @@ const Login: React.FC = () => {
 
       <div className={containerClassName}>
         <div className="flex flex-column h-screen align-items-center justify-content-center">
-          <div
-            style={{
-              borderRadius: '56px',
-              padding: '0.3rem'
-            }}
-          >
+          <div style={{ borderRadius: '56px', padding: '0.3rem' }}>
             <div
               className="w-full surface-card py-8 px-5 sm:px-8"
               style={{ borderRadius: '53px' }}
               ref={(el) => {
                 if (el) {
-                  el.style.setProperty('background-color', 'rgba(255, 255, 255, 0.90)', 'important') // translucent
-                  el.style.setProperty('backdrop-filter', 'blur(3px)', 'important') // blur effect
-                  el.style.setProperty('-webkit-backdrop-filter', 'blur(10px)', 'important') // Safari support
-                  el.style.setProperty('border-radius', '12px', 'important') // rounded corners
-                  el.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.3)', 'important') // subtle border
-                  el.style.setProperty('box-shadow', '0 4px 30px rgba(0, 0, 0, 0.1)', 'important') // soft shadow
+                  el.style.setProperty('background-color', 'rgba(255, 255, 255, 0.90)', 'important')
+                  el.style.setProperty('backdrop-filter', 'blur(3px)', 'important')
+                  el.style.setProperty('-webkit-backdrop-filter', 'blur(10px)', 'important')
+                  el.style.setProperty('border-radius', '12px', 'important')
+                  el.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.3)', 'important')
+                  el.style.setProperty('box-shadow', '0 4px 30px rgba(0, 0, 0, 0.1)', 'important')
                 }
               }}
             >
@@ -159,9 +163,7 @@ const Login: React.FC = () => {
                 <img src={logoImg} alt="" style={{ width: '150px' }} />
               </div>
               <div>
-                <label htmlFor="email1" className="block text-900 text-xl font-medium mb-2">
-                  {/* Username */}
-                </label>
+                <label htmlFor="email1" className="block text-900 text-xl font-medium mb-2"></label>
                 <InputText
                   id="email1"
                   type="text"
@@ -172,9 +174,10 @@ const Login: React.FC = () => {
                   style={{ padding: '1rem' }}
                 />
 
-                <label htmlFor="password1" className="block text-900 font-medium text-xl mb-2">
-                  {/* Password */}
-                </label>
+                <label
+                  htmlFor="password1"
+                  className="block text-900 font-medium text-xl mb-2"
+                ></label>
                 <Password
                   inputId="password1"
                   value={password}

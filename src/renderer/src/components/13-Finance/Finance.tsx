@@ -9,7 +9,6 @@ import axios from 'axios'
 import decrypt from '@renderer/helper'
 import { useNavigate } from 'react-router-dom'
 import { Toast } from 'primereact/toast'
-import { ToastMessage } from 'primereact/api'
 import { useRef } from 'react'
 
 interface Product {
@@ -72,6 +71,7 @@ interface staticData {
 const Finance: React.FC = () => {
   const navigate = useNavigate()
   const toast = useRef<Toast>(null)
+  const [selectedPaymentType, setSelectedPaymentType] = useState<number | null>(null)
 
   const [products, setProducts] = useState<staticData[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -112,27 +112,6 @@ const Finance: React.FC = () => {
     getFinanceDetails()
   }, [])
 
-  // Handle Pay Amount Change
-  // const handlePayChange = (e, rowData) => {
-  //   let inputValue = e.target.value
-  //   let payValue = parseFloat(inputValue) || 0
-
-  //   let updatedProducts = products.map((product) => {
-  //     if (product.id === rowData.id) {
-  //       let outstanding = product.outstanding ?? 0
-  //       let newBalance =
-  //         payValue > outstanding ? `+ ${payValue - outstanding}` : outstanding - payValue
-
-  //       return { ...product, payAmount: inputValue, balance: newBalance }
-  //     }
-  //     return product
-  //   })
-
-  //   console.log('updatedProducts', updatedProducts)
-  //   setProducts(updatedProducts)
-  //   localStorage.setItem('balanceStaticData', JSON.stringify(updatedProducts))
-  // }
-
   const handlePayChange = (e, rowData) => {
     let inputValue = e.target.value
     let payValue = parseFloat(inputValue) || 0
@@ -161,24 +140,41 @@ const Finance: React.FC = () => {
   }
 
   // Handle Payment Confirmation
-  const confirmPayment = () => {
+  const confirmPayment = (paymentType: number) => {
     if (!selectedProduct) return
 
-    const updatedProducts = products.map((product) => {
-      if (product.id === selectedProduct.id) {
-        return {
-          ...product,
-          outstanding: Number(product.balance), // update outstanding with the new balance
-          payAmount: '' // clear the payAmount field
+    axios
+      .post(
+        `${import.meta.env.VITE_API_URL}/Finance/markPaid`,
+        {
+          refCustomerName: selectedProduct.name,
+          payAmount: parseFloat(selectedProduct.payAmount),
+          paymentType
+        },
+        {
+          headers: { Authorization: localStorage.getItem('JWTtoken') }
         }
-      }
-      return product
-    })
-
-    setProducts(updatedProducts)
-    localStorage.setItem('balanceStaticData', JSON.stringify(updatedProducts))
-    setVisible(false)
-    setSelectedProduct(null)
+      )
+      .then((res) => {
+        toast.current?.show({
+          severity: 'success',
+          summary: 'Payment Success',
+          detail: 'Amount has been marked as paid.',
+          life: 3000
+        })
+        getFinanceDetails()
+        setVisible(false)
+        setSelectedProduct(null)
+      })
+      .catch((err) => {
+        console.error(err)
+        toast.current?.show({
+          severity: 'error',
+          summary: 'Payment Failed',
+          detail: 'Error marking payment.',
+          life: 3000
+        })
+      })
   }
 
   return (
@@ -198,6 +194,25 @@ const Finance: React.FC = () => {
               style={{ minWidth: '3rem' }}
             />
             <Column field="name" header="Name" frozen style={{ minWidth: '14rem' }} />
+            <Column
+              field="paymentid"
+              header="Payment Type"
+              frozen
+              style={{ minWidth: '14rem' }}
+              body={(rowData) => {
+                switch (rowData.paymentid) {
+                  case 1:
+                    return 'Cash'
+                  case 2:
+                    return 'Gpay'
+                  case 3:
+                    return 'Credited Customer'
+                  default:
+                    return 'Unknown'
+                }
+              }}
+            />
+
             <Column field="outstanding" header="Outstanding" style={{ minWidth: '8rem' }} />
             <Column
               field="payAmount"
@@ -240,13 +255,19 @@ const Finance: React.FC = () => {
                 label="GPay"
                 icon="pi pi-wallet"
                 className="p-button-primary"
-                onClick={confirmPayment}
+                onClick={() => {
+                  setSelectedPaymentType(2)
+                  confirmPayment(2)
+                }}
               />
               <Button
                 label="Cash"
                 icon="pi pi-money-bill"
                 className="p-button-secondary"
-                onClick={confirmPayment}
+                onClick={() => {
+                  setSelectedPaymentType(1)
+                  confirmPayment(1)
+                }}
               />
             </>
           }

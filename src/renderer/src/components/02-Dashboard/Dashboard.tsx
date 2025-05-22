@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useMemo, useRef } from 'react'
 import { IndianRupee, ShoppingCart, TriangleAlert, Undo2 } from 'lucide-react'
 import { Divider } from 'primereact/divider'
 
@@ -9,6 +9,8 @@ import coverImg from '../../assets/dashboard/banner.png'
 import './Dashboard.css'
 import { useEffect, useState } from 'react'
 import { Toast } from 'primereact/toast'
+import axios from 'axios'
+import decrypt from '@renderer/helper'
 
 interface UserDetails {
   refUserId: number
@@ -22,9 +24,18 @@ interface UserDetails {
   userTypeName: string
 }
 
+interface ParcelDetailsProps {
+  total_orders_today: string
+  total_revenue_today: string
+  returnOrder?: string
+  pendingOrder?: string
+}
+
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<UserDetails>()
   const toast = useRef<Toast>(null)
+
+  const [parcelDetails, setParcelDetails] = useState<ParcelDetailsProps | null>(null)
 
   const checkNetwork = () => {
     if (!navigator.onLine) {
@@ -47,36 +58,60 @@ const Dashboard: React.FC = () => {
     checkNetwork()
   }, [])
 
-  const cardData = [
-    {
-      id: 1,
-      title: 'Orders',
-      count: '4 ',
-      description: 'Orders count',
-      icon: <ShoppingCart size={40} />
-    },
-    {
-      id: 2,
-      title: 'Revenue',
-      count: '280',
-      description: 'Sales count',
-      icon: <IndianRupee size={40} />
-    },
-    {
-      id: 3,
-      title: 'Return Orders',
-      count: '0',
-      description: 'Returns count',
-      icon: <Undo2 size={40} />
-    },
-    {
-      id: 4,
-      title: 'Pending Orders',
-      count: '0',
-      description: 'Pending count',
-      icon: <TriangleAlert size={40} />
-    }
-  ]
+  const getPartners = () => {
+    axios
+      .get(import.meta.env.VITE_API_URL + '/Routes/viewDashboard', {
+        headers: { Authorization: localStorage.getItem('JWTtoken') }
+      })
+      .then((res) => {
+        const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
+        if (data.token) {
+          console.log('data', data)
+          setParcelDetails(data.result)
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching vendor details:', error)
+      })
+  }
+
+  useEffect(() => {
+    getPartners()
+  }, [])
+
+  const cardData = useMemo(
+    () => [
+      {
+        id: 1,
+        title: 'Orders',
+        count: parcelDetails?.total_orders_today ?? 0,
+        description: 'Orders count',
+        icon: <ShoppingCart size={40} />
+      },
+      {
+        id: 2,
+        title: 'Revenue',
+        count: parcelDetails?.total_revenue_today ?? 0,
+        description: 'Sales count',
+        icon: <IndianRupee size={40} />
+      },
+      {
+        id: 3,
+        title: 'Return Orders',
+        count: parcelDetails?.returnOrder ?? 0,
+        description: 'Returns count',
+        icon: <Undo2 size={40} />
+      },
+      {
+        id: 4,
+        title: 'Pending Orders',
+        count: parcelDetails?.pendingOrder ?? 0,
+        description: 'Pending count',
+        icon: <TriangleAlert size={40} />
+      }
+    ],
+    [parcelDetails]
+  )
   return (
     <div>
       <Toast ref={toast} />

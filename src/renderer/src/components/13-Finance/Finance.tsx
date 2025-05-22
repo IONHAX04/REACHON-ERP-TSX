@@ -220,6 +220,7 @@ const Finance: React.FC = () => {
               body={(rowData) => (
                 <InputText
                   type="number"
+                  disabled={rowData.paymentid !== 3}
                   value={rowData.payAmount}
                   onChange={(e) => handlePayChange(e, rowData)}
                 />

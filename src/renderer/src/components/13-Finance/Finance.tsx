@@ -8,6 +8,9 @@ import { InputText } from 'primereact/inputtext'
 import axios from 'axios'
 import decrypt from '@renderer/helper'
 import { useNavigate } from 'react-router-dom'
+import { Toast } from 'primereact/toast'
+import { ToastMessage } from 'primereact/api'
+import { useRef } from 'react'
 
 interface Product {
   id: string
@@ -68,6 +71,8 @@ interface staticData {
 
 const Finance: React.FC = () => {
   const navigate = useNavigate()
+  const toast = useRef<Toast>(null)
+
   const [products, setProducts] = useState<staticData[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [visible, setVisible] = useState(false)
@@ -127,26 +132,31 @@ const Finance: React.FC = () => {
   //   setProducts(updatedProducts)
   //   localStorage.setItem('balanceStaticData', JSON.stringify(updatedProducts))
   // }
+
   const handlePayChange = (e, rowData) => {
     let inputValue = e.target.value
     let payValue = parseFloat(inputValue) || 0
+    const outstanding = rowData.outstanding ?? 0
 
-    let updatedProducts = products.map((product) => {
-      if (product.id === rowData.id) {
-        let outstanding = product.outstanding ?? 0
-        let newBalance =
-          payValue > outstanding ? `+ ${payValue - outstanding}` : outstanding - payValue
+    if (payValue > outstanding) {
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Amount Exceeded',
+        detail: 'Pay amount cannot exceed outstanding amount.',
+        life: 3000
+      })
+      return
+    }
 
-        return {
-          ...product,
-          payAmount: inputValue,
-          balance: newBalance
-        }
-      }
-      return product
-    })
+    const newBalance = outstanding - payValue
 
-    setProducts(updatedProducts as staticData[])
+    const updatedProducts = products.map((product) =>
+      product.id === rowData.id
+        ? { ...product, payAmount: inputValue, balance: newBalance }
+        : product
+    )
+
+    setProducts(updatedProducts)
     localStorage.setItem('balanceStaticData', JSON.stringify(updatedProducts))
   }
 
@@ -173,6 +183,7 @@ const Finance: React.FC = () => {
 
   return (
     <div>
+      <Toast ref={toast} />
       <div>
         <div className="primaryNav">
           <p>Finance</p>

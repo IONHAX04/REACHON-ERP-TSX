@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import { Toast } from 'primereact/toast'
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { Dropdown } from 'primereact/dropdown'
 import { Calendar } from 'primereact/calendar'
 import { Button } from 'primereact/button'
+import { Nullable } from 'primereact/ts-helpers'
 
 interface ReportResultProps {
   customer_reference_number: string
@@ -82,15 +83,39 @@ interface ReportDetailsProps {
   result: ReportResultProps
 }
 
+interface UserDetails {
+  refUserId: number
+  refCustId: string
+  refUserFName: string
+  refUserLName: string
+  refCustMobileNum: string
+  refCustpassword: string
+  refCusthashedpassword: string
+  refUsername: string
+  userTypeName: string
+}
+
 const Report = () => {
   const navigate = useNavigate()
+  const [user, setUser] = useState<UserDetails>()
+
   const [products, setProducts] = useState<ReportDetailsProps[] | []>([])
-  const [dateFrom, setDateFrom] = useState(null)
-  const [dateTo, setDateTo] = useState(null)
+  const [dateFrom, setDateFrom] = useState<Nullable<Date>>(null)
+  const [dateTo, setDateTo] = useState<Nullable<Date>>(null)
   const [customerName, setCustomerName] = useState(null)
   const [bookingStatus, setBookingStatus] = useState(null)
   const [customersDetail, setCustomerDetails] = useState([])
+  console.log('customersDetail', customersDetail)
   const toast = useRef(null)
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('userDetails')
+    console.log('storedUser', storedUser)
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+  }, [])
 
   const getPartners = () => {
     axios
@@ -238,59 +263,70 @@ const Report = () => {
     return message
   }
 
+  const footer = `In total there are ${filteredProducts ? filteredProducts.length : 0} Leafs.`
+
   return (
-    <div className="p-4">
-      <Toast ref={toast} />
-      <DataTable
-        ref={dt}
-        value={filteredProducts}
-        header={tableHeader}
-        paginator
-        scrollable
-        showGridlines
-        rows={10}
-        rowsPerPageOptions={[10, 20, 50]}
-        responsiveLayout="scroll"
-      >
-        <Column
-          header="S.No"
-          style={{ minWidth: '4rem' }}
-          body={(_, options) => options.rowIndex + 1}
-        />
-        <Column
-          field="leaf"
-          header="Leaf"
-          body={(rowData) => rowData.leaf?.vendorLeaf || '-'}
-          style={{ minWidth: '8rem' }}
-        />
-        <Column
-          field="createdat"
-          header="Date"
-          style={{ minWidth: '8rem' }}
-          body={(rowData) => new Date(rowData.createdat).toLocaleDateString('en-GB')}
-        />
-        <Column field="customerrefno" header="Customer Ref No" style={{ minWidth: '12rem' }} />
-        <Column field="refCustomerName" header="Customer Name" style={{ minWidth: '13rem' }} />
-        <Column field="refCode" header="Ref Code" style={{ minWidth: '8rem' }} />
-        <Column field="consignorname" header="Consignor Name" style={{ minWidth: '12rem' }} />
-        <Column field="destination" header="Destination" style={{ minWidth: '10rem' }} />
-        <Column field="noofpieces" header="Pieces" style={{ minWidth: '8rem' }} />
-        <Column field="pickup" header="Pickup" style={{ minWidth: '8rem' }} />
-        <Column field="actualweight" header="Weight" style={{ minWidth: '8rem' }} />
-        <Column field="netamount" header="Amount" style={{ minWidth: '8rem' }} />
-        <Column
-          field="result"
-          header="Status"
-          style={{ minWidth: '8rem' }}
-          body={(rowData) => (rowData.result?.success ? 'Success' : 'Failed')}
-        />
-        <Column
-          field="result"
-          header="Message"
-          body={(rowData) => messageTemplate(rowData)}
-          style={{ minWidth: '20rem' }}
-        />
-      </DataTable>
+    <div className="">
+      <div className="primaryNav">
+        <p>Finance</p>
+        <p className="">Logged in as: {user?.userTypeName}</p>
+      </div>
+      <div className="p-4">
+        <Toast ref={toast} />
+        <DataTable
+          ref={dt}
+          value={filteredProducts}
+          header={tableHeader}
+          paginator
+          scrollable
+          showGridlines
+          footer={footer}
+          rows={5}
+          rowsPerPageOptions={[5, 10, 20, 50]}
+          responsiveLayout="scroll"
+        >
+          <Column
+            header="S.No"
+            style={{ minWidth: '4rem' }}
+            body={(_, options) => options.rowIndex + 1}
+            frozen
+          />
+          <Column
+            field="leaf"
+            frozen
+            header="Leaf"
+            body={(rowData) => rowData.leaf?.vendorLeaf || '-'}
+            style={{ minWidth: '8rem' }}
+          />
+          <Column
+            field="createdat"
+            header="Date"
+            style={{ minWidth: '8rem' }}
+            body={(rowData) => new Date(rowData.createdat).toLocaleDateString('en-GB')}
+          />
+          <Column field="customerrefno" header="Customer Ref No" style={{ minWidth: '12rem' }} />
+          <Column field="refCustomerName" header="Customer Name" style={{ minWidth: '13rem' }} />
+          <Column field="refCode" header="Ref Code" style={{ minWidth: '8rem' }} />
+          <Column field="consignorname" header="Consignor Name" style={{ minWidth: '12rem' }} />
+          <Column field="destination" header="Destination" style={{ minWidth: '10rem' }} />
+          <Column field="noofpieces" header="Pieces" style={{ minWidth: '8rem' }} />
+          <Column field="pickup" header="Pickup" style={{ minWidth: '8rem' }} />
+          <Column field="actualweight" header="Weight" style={{ minWidth: '8rem' }} />
+          <Column field="netamount" header="Amount" style={{ minWidth: '8rem' }} />
+          <Column
+            field="result"
+            header="Status"
+            style={{ minWidth: '8rem' }}
+            body={(rowData) => (rowData.result?.success ? 'Success' : 'Failed')}
+          />
+          <Column
+            field="result"
+            header="Message"
+            body={(rowData) => messageTemplate(rowData)}
+            style={{ minWidth: '20rem' }}
+          />
+        </DataTable>
+      </div>
     </div>
   )
 }

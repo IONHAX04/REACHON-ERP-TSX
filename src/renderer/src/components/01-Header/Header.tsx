@@ -9,6 +9,7 @@ import {
   Cog,
   FileCheck,
   FileText,
+  FolderUp,
   LayoutGrid,
   LogOut,
   Menu,
@@ -33,6 +34,11 @@ const routes = [
     path: '/booking',
     name: 'Booking',
     icon: <Package />
+  },
+  {
+    path: '/bulkBooking',
+    name: 'Bulk Booking',
+    icon: <FolderUp />
   },
   {
     path: '/mapping',
@@ -89,6 +95,11 @@ const adminRoutes = [
     icon: <Package />
   },
   {
+    path: '/bulkBooking',
+    name: 'Bulk Booking',
+    icon: <FolderUp />
+  },
+  {
     path: '/mapping',
     name: 'Mapping',
     icon: <FileText />
@@ -133,6 +144,11 @@ const financeRoutes = [
     icon: <LayoutGrid />
   },
   {
+    path: '/bulkBooking',
+    name: 'Bulk Booking',
+    icon: <FolderUp />
+  },
+  {
     path: '/finance',
     name: 'Finance',
     icon: <ReceiptIndianRupee />
@@ -165,6 +181,11 @@ const employeeRoutes = [
     path: '/booking',
     name: 'Booking',
     icon: <Package />
+  },
+  {
+    path: '/bulkBooking',
+    name: 'Bulk Booking',
+    icon: <FolderUp />
   },
   {
     path: '/mapping',

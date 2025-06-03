@@ -161,7 +161,9 @@ const Report = () => {
 
   const dt = useRef(null)
 
-  const customerNames = [...new Set(products.map((item) => item.refCustomerName))]
+  const customerNames = [
+    ...new Set((Array.isArray(products) ? products : []).map((item) => item.refCustomerName))
+  ]
   const bookingStatuses = [
     { label: 'Success', value: 'Success' },
     { label: 'Failed', value: 'Failed' }
@@ -216,13 +218,14 @@ const Report = () => {
     document.body.removeChild(link)
   }
 
-  const filteredProducts = products.filter((item) => {
+  const filteredProducts = (products || []).filter((item) => {
     const itemDate = new Date(item.createdat)
     const validDate =
       (!dateFrom || itemDate >= new Date(dateFrom)) && (!dateTo || itemDate <= new Date(dateTo))
     const validCustomer = !customerName || item.refCustomerName === customerName
     const validBookingStatus =
       !bookingStatus || (item.result?.success ? 'Success' : 'Failed') === bookingStatus
+
     return validDate && validCustomer && validBookingStatus
   })
 
@@ -263,8 +266,6 @@ const Report = () => {
     return message
   }
 
-  const footer = `In total there are ${filteredProducts ? filteredProducts.length : 0} Leafs.`
-
   return (
     <div className="">
       <div className="primaryNav">
@@ -280,7 +281,6 @@ const Report = () => {
           paginator
           scrollable
           showGridlines
-          footer={footer}
           rows={5}
           rowsPerPageOptions={[5, 10, 20, 50]}
           responsiveLayout="scroll"

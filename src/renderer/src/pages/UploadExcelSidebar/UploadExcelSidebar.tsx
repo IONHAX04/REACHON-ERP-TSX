@@ -34,7 +34,7 @@ const UploadExcelSidebar: React.FC<UploadExcelSidebarProps> = ({ setVisibleRight
   const leftToolbarTemplate = () => (
     <div className="flex flex-wrap gap-2">
       <p>
-        Download your sample excel sheet for reference & you can upload the leaf for further
+        Download your sample excel sheet for reference & you can upload the data for further
         transactions
       </p>
     </div>

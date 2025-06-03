@@ -19,6 +19,7 @@ import TestingPDF from '../11-TestingPDF/TestingPDF'
 import ReportPDF from '../12-ReportPDF/ReportPDF'
 import Finance from '../13-Finance/Finance'
 import Cancellation from '../14-Cancellation/Cancellation'
+import BulkBooking from '../15-BulkBooking/BulkBooking'
 
 function PrivateRoute({ children }) {
   const userDetails = localStorage.getItem('userDetails')
@@ -63,6 +64,16 @@ const MainRoutes: React.FC = () => {
               </PrivateRoute>
             }
           />
+
+          <Route
+            path="/bulkBooking"
+            element={
+              <PrivateRoute>
+                <BulkBooking />
+              </PrivateRoute>
+            }
+          />
+
           <Route
             path="/mapping"
             element={

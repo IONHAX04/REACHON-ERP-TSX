@@ -72,6 +72,7 @@ const Finance: React.FC = () => {
   const navigate = useNavigate()
   const toast = useRef<Toast>(null)
   const [selectedPaymentType, setSelectedPaymentType] = useState<number | null>(null)
+  console.log('selectedPaymentType', selectedPaymentType)
 
   const [products, setProducts] = useState<staticData[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -156,6 +157,7 @@ const Finance: React.FC = () => {
         }
       )
       .then((res) => {
+        console.log('res', res)
         toast.current?.show({
           severity: 'success',
           summary: 'Payment Success',

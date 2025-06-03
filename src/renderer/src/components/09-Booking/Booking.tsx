@@ -424,7 +424,7 @@ const Booking: React.FC = () => {
       { label: 'Actual Weight', value: actualWeight },
       // { label: 'Dimension', value: checked },
       { label: 'Net Amount', value: netAmoutn },
-      { label: 'Pickup Charge', value: pickupCharge },
+      // { label: 'Pickup Charge', value: pickupCharge },
       { label: 'Count', value: count },
       { label: 'Consignor Pincode', value: consignerPincode },
       { label: 'Consignee Pincode', value: consigneePincode }
@@ -499,8 +499,8 @@ const Booking: React.FC = () => {
               alternate_phone: consigerPhone
             },
             customer_reference_number: consigeeRefNumber,
-            cod_collection_mode: 'CASH',
-            cod_amount: pickupCharge,
+            cod_collection_mode: '',
+            // cod_amount: pickupCharge,
             commodity_id: '99',
             eway_bill: selectedLeaf,
             is_risk_surcharge_applicable: 'false',

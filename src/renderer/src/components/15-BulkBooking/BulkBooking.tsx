@@ -78,7 +78,7 @@ export interface Customer {
   trans_status: string
   userid: string
   tempStatus: string
-  lastStatusCode: string
+  overallStatus: string
 }
 
 const BulkBooking: React.FC = () => {
@@ -94,7 +94,6 @@ const BulkBooking: React.FC = () => {
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
 
   const [user, setUser] = useState<UserDetails>()
-  const [vendors, setVendors] = useState<any[]>([])
   const [selectedVendors, setSelectedVendors] = useState<Vendor[] | null>(null)
   const [visibleRight, setVisibleRight] = useState(false)
 
@@ -110,7 +109,6 @@ const BulkBooking: React.FC = () => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         if (data.token) {
           localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
-          setVendors(data.partners)
         } else {
           navigate('/login')
         }
@@ -276,7 +274,7 @@ const BulkBooking: React.FC = () => {
         dsr_id_num: item.dsr_id_num,
         fr_dp_code: item.fr_dp_code,
         tempStatus: item.tempStatus,
-        lastStatusCode: item.lastStatusCode
+        lastStatusCode: item.overallStatus
       }
     })
 
@@ -313,10 +311,12 @@ const BulkBooking: React.FC = () => {
   useEffect(() => {
     let filtered = [...customers]
 
-    // if (selectedVendors && selectedVendors.length > 0) {
-    //   const vendorNames = selectedVendors.map((v: any) => v.partnersName)
-    //   filtered = filtered.filter((c) => vendorNames.includes(c.vendor))
-    // }
+    if (selectedVendors && selectedVendors.length > 0) {
+      console.log('selectedVendors', selectedVendors)
+      const vendorNames = selectedVendors.map((v: any) => v.partnersName)
+      console.log('vendorNames', vendorNames)
+      filtered = filtered.filter((c) => vendorNames.includes(c.dsr_act_cust_code))
+    }
 
     if (multiDates && multiDates.length > 0) {
       const dateStrings = multiDates.map((d) => d.toDateString())
@@ -362,6 +362,15 @@ const BulkBooking: React.FC = () => {
     }
   }, [visibleRight])
 
+  const vendors = Array.from(
+    new Map(
+      filteredCustomers.map((item) => [
+        item.dsr_act_cust_code,
+        { partnersName: item.dsr_act_cust_code }
+      ])
+    ).values()
+  )
+
   return (
     <div>
       <Toast ref={toast} />
@@ -373,17 +382,6 @@ const BulkBooking: React.FC = () => {
 
       <div className="m-3">
         <div className="flex gap-3">
-          <MultiSelect
-            value={selectedVendors}
-            onChange={(e) => setSelectedVendors(e.value)}
-            options={vendors}
-            optionLabel="partnersName"
-            filter
-            className="flex-1"
-            placeholder="EO Code"
-            maxSelectedLabels={3}
-          />
-
           <MultiSelect
             value={selectedVendors}
             onChange={(e) => setSelectedVendors(e.value)}
@@ -454,19 +452,23 @@ const BulkBooking: React.FC = () => {
         >
           <Column
             field="serialNo"
+            frozen
             header="S.No"
             body={(_rowData, { rowIndex }) => rowIndex + 1}
             exportField="S.No"
             style={{ minWidth: '3rem' }}
           />
-          <Column field="dsr_branch_code" header="Branch Code" />
-          <Column field="dsr_cnno" header="CN No" />
-          <Column field="dsr_cust_code" header="Customer Code" />
-          <Column field="dsr_booking_date" header="Booking Date" />
-          <Column field="dsr_amt" header="Amount" />
-          <Column field="dsr_status" header="Status" />
-          <Column field="userid" header="Booked By" />
-          <Column field="mod_date" header="Modified Date" />
+          <Column field="dsr_value" header="DSR Value" style={{ minWidth: '13rem' }} frozen />
+          <Column field="dsr_branch_code" header="Branch Code" style={{ minWidth: '8rem' }} />
+          <Column field="dsr_cnno" header="CN No" style={{ minWidth: '13rem' }} />
+
+          <Column field="dsr_cust_code" header="Customer Code" style={{ minWidth: '13rem' }} />
+          <Column field="dsr_booking_date" header="Booking Date" style={{ minWidth: '13rem' }} />
+          <Column field="dsr_amt" header="Amount" style={{ minWidth: '13rem' }} />
+          <Column field="dsr_act_cust_code" header="Cust Number" style={{ minWidth: '13rem' }} />
+          <Column field="dsr_status" header="Status" style={{ minWidth: '13rem' }} />
+          <Column field="userid" header="Booked By" style={{ minWidth: '13rem' }} />
+          <Column field="mod_date" header="Modified Date" style={{ minWidth: '13rem' }} />
 
           <Column
             header="Last Status Code"
@@ -479,6 +481,7 @@ const BulkBooking: React.FC = () => {
                 return '-'
               }
             }}
+            style={{ minWidth: '13rem' }}
           />
         </DataTable>
       </div>

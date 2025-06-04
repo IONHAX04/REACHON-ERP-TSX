@@ -16,7 +16,6 @@ import { Column } from 'primereact/column'
 import { IconField } from 'primereact/iconfield'
 import { InputIcon } from 'primereact/inputicon'
 import { InputText } from 'primereact/inputtext'
-import { Tag } from 'primereact/tag'
 
 interface UserDetails {
   refUserId: number
@@ -78,6 +77,8 @@ export interface Customer {
   office_type: string
   trans_status: string
   userid: string
+  tempStatus: string
+  lastStatusCode: string
 }
 
 const BulkBooking: React.FC = () => {
@@ -108,7 +109,6 @@ const BulkBooking: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         if (data.token) {
-          console.log('data', data)
           localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
           setVendors(data.partners)
         } else {
@@ -130,7 +130,6 @@ const BulkBooking: React.FC = () => {
       .then((res) => {
         const data = decrypt(res.data[1], res.data[0], import.meta.env.VITE_ENCRYPTION_KEY)
         if (data.token) {
-          console.log('data line 63 --------- ', data)
           if (data.success) {
             localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
             setCustomers(data.result)
@@ -213,7 +212,94 @@ const BulkBooking: React.FC = () => {
 
   const footer = `In total there are ${filteredCustomers ? filteredCustomers.length : 0} Leafs.`
 
-  const exportCSV = () => {}
+  const exportCSV = () => {
+    if (!filteredCustomers || filteredCustomers.length === 0) {
+      toast.current?.show({
+        severity: 'warn',
+        summary: 'No Data',
+        detail: 'There is no data to export.',
+        life: 3000
+      })
+      return
+    }
+
+    const exportData = filteredCustomers.map((item, index) => {
+      let lastStatusCode = '-'
+      try {
+        const parsedStatus = JSON.parse(item.overallStatus)
+        lastStatusCode = parsedStatus?.[parsedStatus.length - 1]?.strCode || '-'
+      } catch (e) {
+        console.warn('Failed to parse overallStatus', e)
+      }
+
+      return {
+        'S.No': index + 1,
+        dsr_branch_code: item.dsr_branch_code,
+        dsr_cnno: item.dsr_cnno,
+        dsr_booked_by: item.dsr_booked_by,
+        dsr_cust_code: item.dsr_cust_code,
+        dsr_cn_weight: item.dsr_cn_weight,
+        dsr_cn_type: item.dsr_cn_type,
+        dsr_dest: item.dsr_dest,
+        dsr_mode: item.dsr_mode,
+        dsr_no_of_pieces: item.dsr_no_of_pieces,
+        dsr_dest_pin: item.dsr_dest_pin,
+        dsr_booking_date: item.dsr_booking_date,
+        dsr_amt: item.dsr_amt,
+        dsr_status: item.dsr_status,
+        dsr_pod_recd: item.dsr_pod_recd,
+        dsr_transmf_no: item.dsr_transmf_no,
+        dsr_booking_time: item.dsr_booking_time,
+        dsr_dox: item.dsr_dox,
+        dsr_service_tax: item.dsr_service_tax,
+        dsr_spl_disc: item.dsr_spl_disc,
+        dsr_contents: item.dsr_contents,
+        dsr_remarks: item.dsr_remarks,
+        dsr_value: item.dsr_value,
+        dsr_invno: item.dsr_invno,
+        dsr_invdate: item.dsr_invdate,
+        mod_date: item.mod_date,
+        office_type: item.office_type,
+        office_code: item.office_code,
+        dsr_refno: item.dsr_refno,
+        mod_time: item.mod_time,
+        nodeid: item.nodeid,
+        userid: item.userid,
+        trans_status: item.trans_status,
+        dsr_act_cust_code: item.dsr_act_cust_code,
+        dsr_mobile: item.dsr_mobile,
+        dsr_email: item.dsr_email,
+        dsr_ndx_paper: item.dsr_ndx_paper,
+        dsr_pickup_time: item.dsr_pickup_time,
+        dsr_vol_weight: item.dsr_vol_weight,
+        dsr_captured_weight: item.dsr_captured_weight,
+        dsr_id_num: item.dsr_id_num,
+        fr_dp_code: item.fr_dp_code,
+        tempStatus: item.tempStatus,
+        lastStatusCode: item.lastStatusCode
+      }
+    })
+
+    const csvHeader = Object.keys(exportData[0]).join(',') + '\n'
+    const csvRows = exportData
+      .map((row) =>
+        Object.values(row)
+          .map((value) => `"${value}"`)
+          .join(',')
+      )
+      .join('\n')
+
+    const csvContent = csvHeader + csvRows
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', 'transaction_mapping.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
   useEffect(() => {
     const storedUser = localStorage.getItem('userDetails')
@@ -225,7 +311,6 @@ const BulkBooking: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    console.log('customers', customers)
     let filtered = [...customers]
 
     // if (selectedVendors && selectedVendors.length > 0) {
@@ -233,23 +318,24 @@ const BulkBooking: React.FC = () => {
     //   filtered = filtered.filter((c) => vendorNames.includes(c.vendor))
     // }
 
-    // if (multiDates && multiDates.length > 0) {
-    //   const dateStrings = multiDates.map((d) => d.toDateString())
-    //   filtered = filtered.filter((c) =>
-    //     dateStrings.includes(new Date(c.purchasedDate).toDateString())
-    //   )
-    // }
+    if (multiDates && multiDates.length > 0) {
+      const dateStrings = multiDates.map((d) => d.toDateString())
+      filtered = filtered.filter((c) =>
+        dateStrings.includes(new Date(c.dsr_booking_date).toDateString())
+      )
+    }
 
-    // if (rangeDates && rangeDates[0] && rangeDates[1]) {
-    //   const start = rangeDates[0]
-    //   const end = rangeDates[1]
-    //   filtered = filtered.filter((c) => {
-    //     const date = new Date(c.purchasedDate)
-    //     return date >= start! && date <= end!
-    //   })
-    // }
+    if (rangeDates && rangeDates[0] && rangeDates[1]) {
+      const start = rangeDates[0]
+      const end = rangeDates[1]
+      filtered = filtered.filter((c) => {
+        const date = new Date(c.dsr_booking_date)
+        return date >= start! && date <= end!
+      })
+    }
 
     setFilteredCustomers(filtered)
+    console.log('filtered', filtered)
   }, [selectedVendors, multiDates, rangeDates, customers])
 
   useEffect(() => {
@@ -287,17 +373,6 @@ const BulkBooking: React.FC = () => {
 
       <div className="m-3">
         <div className="flex gap-3">
-          <MultiSelect
-            value={selectedVendors}
-            onChange={(e) => setSelectedVendors(e.value)}
-            options={vendors}
-            optionLabel="partnersName"
-            filter
-            className="flex-1"
-            placeholder="Partners"
-            maxSelectedLabels={3}
-          />
-
           <MultiSelect
             value={selectedVendors}
             onChange={(e) => setSelectedVendors(e.value)}
@@ -369,8 +444,8 @@ const BulkBooking: React.FC = () => {
           showGridlines
           paginator
           loading={loading}
-          rows={5}
-          rowsPerPageOptions={[5, 10, 25, 50]}
+          rows={10}
+          rowsPerPageOptions={[10, 50, 150, 300]}
           stripedRows
           className="transactionDetailsTable"
           header={header}
@@ -384,62 +459,26 @@ const BulkBooking: React.FC = () => {
             exportField="S.No"
             style={{ minWidth: '3rem' }}
           />
+          <Column field="dsr_branch_code" header="Branch Code" />
+          <Column field="dsr_cnno" header="CN No" />
+          <Column field="dsr_cust_code" header="Customer Code" />
+          <Column field="dsr_booking_date" header="Booking Date" />
+          <Column field="dsr_amt" header="Amount" />
+          <Column field="dsr_status" header="Status" />
+          <Column field="userid" header="Booked By" />
+          <Column field="mod_date" header="Modified Date" />
 
           <Column
-            field="vendorLeaf"
-            header="Leaf"
-            frozen
-            style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-          ></Column>
-          <Column
-            field="vendor"
-            header="Partners"
-            style={{ minWidth: '9rem', textTransform: 'capitalize' }}
-          ></Column>
-          <Column
-            field="refStatus"
-            header="Status"
-            style={{ minWidth: '12rem', textTransform: 'capitalize' }}
-          ></Column>
-          <Column
-            field="assignedTo"
-            header="Assigned To"
-            body={(_rowData) => (_rowData.assignedTo ? _rowData.assignedTo : '-')}
-            style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-          ></Column>
-          <Column
-            field="purchasedDate"
-            header="Purchased Date"
-            style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-          ></Column>
-          <Column
-            field="validity"
-            header="Validity"
-            style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-          ></Column>
-          <Column
-            field="validityDate"
-            header="Validity Date"
-            style={{ minWidth: '10rem', textTransform: 'capitalize' }}
-          ></Column>
-          <Column
-            header="Validity Status"
-            body={(_rowData) => {
-              const validityDate = new Date(_rowData.validityDate)
-              const currentDate = new Date()
-
-              const isExpired = validityDate < currentDate
-              return (
-                <div>
-                  {isExpired ? (
-                    <Tag severity="danger" value="Expired" />
-                  ) : (
-                    <Tag severity="success" value="Live" />
-                  )}
-                </div>
-              )
+            header="Last Status Code"
+            body={(rowData) => {
+              try {
+                const statusArray = JSON.parse(rowData.overallStatus)
+                const last = statusArray[statusArray.length - 1]
+                return last?.strCode || '-'
+              } catch {
+                return '-'
+              }
             }}
-            style={{ minWidth: '12rem' }}
           />
         </DataTable>
       </div>

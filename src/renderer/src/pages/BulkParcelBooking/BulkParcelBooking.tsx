@@ -114,7 +114,7 @@ const BulkParcelBooking: React.FC<UploadExcelSidebarProps> = ({ setVisibleRight 
 
         let duplicateFound = false
 
-        jsonData = jsonData.map((row, index) => {
+        jsonData = jsonData.map((row, _index) => {
           const formattedRow = { ...row }
 
           if (formattedRow.purchasedDate) {

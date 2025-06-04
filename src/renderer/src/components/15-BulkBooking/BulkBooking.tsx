@@ -94,6 +94,7 @@ const BulkBooking: React.FC = () => {
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
 
   const [user, setUser] = useState<UserDetails>()
+  const [vendors, setVendors] = useState<any | null>()
   const [selectedVendors, setSelectedVendors] = useState<Vendor[] | null>(null)
   const [visibleRight, setVisibleRight] = useState(false)
 
@@ -131,6 +132,15 @@ const BulkBooking: React.FC = () => {
           if (data.success) {
             localStorage.setItem('JWTtoken', 'Bearer ' + data.token)
             setCustomers(data.result)
+            const vendors = Array.from(
+              new Map(
+                data.result.map((item) => [
+                  item.dsr_act_cust_code,
+                  { partnersName: item.dsr_act_cust_code }
+                ])
+              ).values()
+            )
+            setVendors(vendors)
             setFilteredCustomers(data.result)
           }
         } else {
@@ -223,6 +233,7 @@ const BulkBooking: React.FC = () => {
 
     const exportData = filteredCustomers.map((item, index) => {
       let lastStatusCode = '-'
+      console.log('lastStatusCode', lastStatusCode)
       try {
         const parsedStatus = JSON.parse(item.overallStatus)
         lastStatusCode = parsedStatus?.[parsedStatus.length - 1]?.strCode || '-'
@@ -308,34 +319,48 @@ const BulkBooking: React.FC = () => {
     }
   }, [])
 
+  const formatDate = (date: Date) => {
+    const d = new Date(date)
+    const day = String(d.getDate()).padStart(2, '0')
+    const month = String(d.getMonth() + 1).padStart(2, '0') // months are 0-based
+    const year = d.getFullYear()
+    return `${day}-${month}-${year}`
+  }
+
   useEffect(() => {
     let filtered = [...customers]
 
     if (selectedVendors && selectedVendors.length > 0) {
-      console.log('selectedVendors', selectedVendors)
       const vendorNames = selectedVendors.map((v: any) => v.partnersName)
-      console.log('vendorNames', vendorNames)
       filtered = filtered.filter((c) => vendorNames.includes(c.dsr_act_cust_code))
     }
 
+    // Format helper: convert Date to "dd-mm-yyyy"
+    const formatDate = (date: Date) => {
+      const d = new Date(date)
+      const day = String(d.getDate()).padStart(2, '0')
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const year = d.getFullYear()
+      return `${day}-${month}-${year}`
+    }
+
     if (multiDates && multiDates.length > 0) {
-      const dateStrings = multiDates.map((d) => d.toDateString())
-      filtered = filtered.filter((c) =>
-        dateStrings.includes(new Date(c.dsr_booking_date).toDateString())
-      )
+      const dateStrings = multiDates.map((d) => formatDate(new Date(d)))
+      filtered = filtered.filter((c) => dateStrings.includes(c.dsr_booking_date))
     }
 
     if (rangeDates && rangeDates[0] && rangeDates[1]) {
-      const start = rangeDates[0]
-      const end = rangeDates[1]
+      const start = new Date(rangeDates[0])
+      const end = new Date(rangeDates[1])
+
       filtered = filtered.filter((c) => {
-        const date = new Date(c.dsr_booking_date)
-        return date >= start! && date <= end!
+        const [day, month, year] = c.dsr_booking_date.split('-').map(Number)
+        const bookingDate = new Date(year, month - 1, day) // Create Date from dd-mm-yyyy
+        return bookingDate >= start && bookingDate <= end
       })
     }
 
     setFilteredCustomers(filtered)
-    console.log('filtered', filtered)
   }, [selectedVendors, multiDates, rangeDates, customers])
 
   useEffect(() => {
@@ -361,15 +386,6 @@ const BulkBooking: React.FC = () => {
       window.removeEventListener('offline', handleOffline)
     }
   }, [visibleRight])
-
-  const vendors = Array.from(
-    new Map(
-      filteredCustomers.map((item) => [
-        item.dsr_act_cust_code,
-        { partnersName: item.dsr_act_cust_code }
-      ])
-    ).values()
-  )
 
   return (
     <div>
